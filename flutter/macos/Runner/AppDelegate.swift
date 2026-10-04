@@ -21,4 +21,11 @@ class AppDelegate: FlutterAppDelegate {
         launched = true;
         NSApplication.shared.activate(ignoringOtherApps: true);
     }
+
+    // App menu > Settings… (⌘,). The main window opens its Settings tab and
+    // comes forward, even when only remote-session windows are open.
+    @IBAction func showSettings(_ sender: Any?) {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        MainFlutterWindow.mainHostChannel?.invokeMethod("showSettings", arguments: nil)
+    }
 }

@@ -771,6 +771,16 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       return false;
     }
 
+    if (isMacOS) {
+      // The macOS runner sends this from the app menu's Settings item (⌘,).
+      kMacOSPermChannel.setMethodCallHandler((call) async {
+        if (call.method == kMacOSShowSettings) {
+          await windowOnTop(null);
+          DesktopTabPage.onAddSetting();
+        }
+      });
+    }
+
     rustDeskWinManager.setMethodHandler((call, fromWindowId) async {
       if (!isChattyMethod(call.method)) {
         debugPrint(
