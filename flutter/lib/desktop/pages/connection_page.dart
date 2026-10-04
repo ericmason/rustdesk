@@ -233,6 +233,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     }
     Get.put<TextEditingController>(_idEditingController);
     Get.put<IDTextEditingController>(_idController);
+    Get.put<FocusNode>(_idFocusNode, tag: kConnectionPageIdFocusTag);
     windowManager.addListener(this);
   }
 
@@ -242,6 +243,9 @@ class _ConnectionPageState extends State<ConnectionPage>
     windowManager.removeListener(this);
     _allPeersLoader.clear();
     _idFocusNode.removeListener(onFocusChanged);
+    if (Get.isRegistered<FocusNode>(tag: kConnectionPageIdFocusTag)) {
+      Get.delete<FocusNode>(tag: kConnectionPageIdFocusTag);
+    }
     _idFocusNode.dispose();
     _idEditingController.dispose();
     if (Get.isRegistered<IDTextEditingController>()) {

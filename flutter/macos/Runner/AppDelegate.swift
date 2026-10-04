@@ -22,6 +22,13 @@ class AppDelegate: FlutterAppDelegate {
         NSApplication.shared.activate(ignoringOtherApps: true);
         // FlutterAppDelegate replaces APP_NAME only in the app menu.
         replaceAppNamePlaceholder(in: NSApplication.shared.mainMenu)
+        // The Dock menu is built synchronously, so keep the recent peers
+        // cached and refresh them whenever the app gains or loses focus.
+        for name in [NSApplication.didBecomeActiveNotification, NSApplication.didResignActiveNotification] {
+            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                self?.refreshDockRecentPeers()
+            }
+        }
     }
 
     private func replaceAppNamePlaceholder(in menu: NSMenu?) {
@@ -31,6 +38,46 @@ class AppDelegate: FlutterAppDelegate {
         for item in menu.items {
             item.title = item.title.replacingOccurrences(of: "APP_NAME", with: appName)
             replaceAppNamePlaceholder(in: item.submenu)
+        }
+    }
+
+    // Dock menu: New Connection, then up to 5 recent peers.
+    private var dockRecentPeers: [[String: String]] = []
+
+    override func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let menu = NSMenu()
+        let newConnection = NSMenuItem(title: "New Connection", action: #selector(dockNewConnection(_:)), keyEquivalent: "")
+        newConnection.target = self
+        menu.addItem(newConnection)
+        if !dockRecentPeers.isEmpty {
+            menu.addItem(NSMenuItem.separator())
+            for peer in dockRecentPeers {
+                guard let id = peer["id"], !id.isEmpty else { continue }
+                let name = peer["name"] ?? ""
+                let item = NSMenuItem(title: name.isEmpty ? id : "\(name) (\(id))", action: #selector(dockConnectPeer(_:)), keyEquivalent: "")
+                item.target = self
+                item.representedObject = id
+                menu.addItem(item)
+            }
+        }
+        refreshDockRecentPeers()
+        return menu
+    }
+
+    @objc private func dockNewConnection(_ sender: Any?) {
+        callMainWindow("newConnection")
+    }
+
+    @objc private func dockConnectPeer(_ sender: NSMenuItem) {
+        guard let id = sender.representedObject as? String else { return }
+        callMainWindow("connectPeer", arguments: ["id": id])
+    }
+
+    private func refreshDockRecentPeers() {
+        MainFlutterWindow.mainHostChannel?.invokeMethod("getRecentPeers", arguments: nil) { [weak self] result in
+            if let peers = result as? [[String: String]] {
+                self?.dockRecentPeers = Array(peers.prefix(5))
+            }
         }
     }
 

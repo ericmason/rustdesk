@@ -64,6 +64,10 @@ const String kWindowConnect = "connect";
 const String kWindowBumpMouse = "bump_mouse";
 // macOS runner -> main window, over org.rustdesk.rustdesk/host.
 const String kMacOSShowSettings = "showSettings";
+const String kMacOSNewConnection = "newConnection";
+const String kMacOSGetRecentPeers = "getRecentPeers";
+const String kMacOSConnectPeer = "connectPeer";
+const String kConnectionPageIdFocusTag = "connection-page-id-focus";
 
 const String kWindowEventNewRemoteDesktop = "new_remote_desktop";
 const String kWindowEventNewFileTransfer = "new_file_transfer";

@@ -12,7 +12,9 @@ import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
+import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
 import 'package:flutter_hbb/desktop/widgets/update_progress.dart';
+import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/server_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -785,6 +787,38 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             DesktopTabPage.onAddSetting();
           } else {
             DesktopSettingPage.switch2page(page);
+          }
+        } else if (call.method == kMacOSNewConnection) {
+          // Dock menu > New Connection.
+          await windowOnTop(null);
+          Get.find<DesktopTabController>().jumpTo(0);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.isRegistered<FocusNode>(tag: kConnectionPageIdFocusTag)) {
+              Get.find<FocusNode>(tag: kConnectionPageIdFocusTag)
+                  .requestFocus();
+            }
+          });
+        } else if (call.method == kMacOSGetRecentPeers) {
+          // The Dock menu lists the 5 most recent peers.
+          final json = await bind.mainLoadRecentPeersForAb(filter: '');
+          if (json.isEmpty) return [];
+          return (jsonDecode(json) as List)
+              .take(5)
+              .map((e) => Peer.fromJson(e as Map<String, dynamic>))
+              .map((p) => {
+                    'id': p.id,
+                    'name': p.alias.isNotEmpty ? p.alias : p.hostname,
+                  })
+              .toList();
+        } else if (call.method == kMacOSConnectPeer) {
+          final id = call.arguments is Map ? call.arguments['id'] : null;
+          if (id is String && id.isNotEmpty) {
+            await connectMainDesktop(id,
+                isFileTransfer: false,
+                isViewCamera: false,
+                isTerminal: false,
+                isTcpTunneling: false,
+                isRDP: false);
           }
         } else {
           // Tells the runner nothing handled the call, so it can fall back.
