@@ -20,6 +20,18 @@ class AppDelegate: FlutterAppDelegate {
     override func applicationDidFinishLaunching(_ aNotification: Notification) {
         launched = true;
         NSApplication.shared.activate(ignoringOtherApps: true);
+        // FlutterAppDelegate replaces APP_NAME only in the app menu.
+        replaceAppNamePlaceholder(in: NSApplication.shared.mainMenu)
+    }
+
+    private func replaceAppNamePlaceholder(in menu: NSMenu?) {
+        guard let menu = menu else { return }
+        let info = Bundle.main.infoDictionary
+        let appName = info?["CFBundleDisplayName"] as? String ?? info?["CFBundleName"] as? String ?? "RustDesk"
+        for item in menu.items {
+            item.title = item.title.replacingOccurrences(of: "APP_NAME", with: appName)
+            replaceAppNamePlaceholder(in: item.submenu)
+        }
     }
 
     // App menu > Settings… (⌘,). The main window opens its Settings tab and
@@ -28,9 +40,12 @@ class AppDelegate: FlutterAppDelegate {
         callMainWindow("showSettings")
     }
 
-    // App menu > About RustDesk opens the About tab in Settings.
+    // App menu > About RustDesk opens the About tab in Settings. A process
+    // without the main window's handler shows the standard panel instead.
     @IBAction func showAbout(_ sender: Any?) {
-        callMainWindow("showSettings", arguments: ["page": "about"])
+        callMainWindow("showSettings", arguments: ["page": "about"]) {
+            NSApplication.shared.orderFrontStandardAboutPanel(nil)
+        }
     }
 
     // Help > RustDesk Help.
@@ -40,8 +55,32 @@ class AppDelegate: FlutterAppDelegate {
         }
     }
 
-    private func callMainWindow(_ method: String, arguments: Any? = nil) {
+    /// Calls `method` on the main window's host channel. `onUnhandled` runs
+    /// when no Dart handler answers, such as in the --cm process.
+    private func callMainWindow(_ method: String, arguments: Any? = nil, onUnhandled: (() -> Void)? = nil) {
         NSApplication.shared.activate(ignoringOtherApps: true)
-        MainFlutterWindow.mainHostChannel?.invokeMethod(method, arguments: arguments)
+        guard let channel = MainFlutterWindow.mainHostChannel else {
+            onUnhandled?()
+            return
+        }
+        channel.invokeMethod(method, arguments: arguments) { result in
+            if result is FlutterError || (result as AnyObject?) === FlutterMethodNotImplemented {
+                onUnhandled?()
+            }
+        }
+    }
+}
+
+extension AppDelegate: NSMenuItemValidation {
+    // Settings… and About send ⌘, and friends to the main window. In a
+    // remote-session window, disable them so the key goes to the peer.
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        switch menuItem.action {
+        case #selector(showSettings(_:)), #selector(showAbout(_:)):
+            guard let keyWindow = NSApplication.shared.keyWindow else { return true }
+            return keyWindow is MainFlutterWindow
+        default:
+            return true
+        }
     }
 }

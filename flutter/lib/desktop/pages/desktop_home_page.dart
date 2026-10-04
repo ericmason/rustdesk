@@ -786,6 +786,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           } else {
             DesktopSettingPage.switch2page(page);
           }
+        } else {
+          // Tells the runner nothing handled the call, so it can fall back.
+          throw MissingPluginException();
         }
       });
     }

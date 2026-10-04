@@ -331,7 +331,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="rJ0-wn-3NY">
                         <items>
-                            <menuItem title="RustDesk Help" id="Hlp-Rd-Doc">
+                            <menuItem title="APP_NAME Help" id="Hlp-Rd-Doc">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="openRustDeskHelp:" target="Voe-Tx-rLC" id="Hlp-Rd-Act"/>
