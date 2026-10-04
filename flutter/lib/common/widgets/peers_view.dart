@@ -5,6 +5,7 @@ import 'package:dynamic_layouts/dynamic_layouts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/consts.dart';
+import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/models/ab_model.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -249,6 +250,14 @@ class _PeersViewState extends State<_PeersView>
               // No need to listen the currentTab change event.
               // Because the currentTab change event will trigger the peers change event,
               // and the peers change event will trigger _buildPeersView().
+              if (isDesktop && !isPortrait) {
+                return Obx(() => peerCardUiType.value == PeerUiType.list
+                    ? SizedBox(height: 48, child: visibilityChild)
+                    : peerCardUiType.value == PeerUiType.grid
+                        ? visibilityChild
+                        : SizedBox(
+                            width: 220, height: 48, child: visibilityChild));
+              }
               return !isPortrait
                   ? Obx(() => peerCardUiType.value == PeerUiType.list
                       ? Container(height: 45, child: visibilityChild)
@@ -263,6 +272,15 @@ class _PeersViewState extends State<_PeersView>
             // We should avoid too many rebuilds. Win10(Some machines) on Flutter 3.19.6.
             // Continious rebuilds of `ListView.builder` will cause memory leak.
             // Simple demo can reproduce this issue.
+            if (isDesktop && stateGlobal.isPortrait.isFalse) {
+              final child = Obx(() => _buildDesktopPeers(peers, buildOnePeer));
+              if (updateEvent == UpdateEvent.load) {
+                _curPeers.clear();
+                _curPeers.addAll(peers.map((e) => e.id));
+                _queryOnlines(true);
+              }
+              return child;
+            }
             final Widget child = Obx(() => stateGlobal.isPortrait.isTrue
                 ? ListView.builder(
                     itemCount: peers.length,
@@ -308,6 +326,47 @@ class _PeersViewState extends State<_PeersView>
     }, obslist);
 
     return body;
+  }
+
+  Widget _buildDesktopPeers(
+      List<Peer> peers, Widget Function(Peer, bool) buildOnePeer) {
+    switch (peerCardUiType.value) {
+      case PeerUiType.list:
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(DesktopPanelStyle.panelRadius),
+          child: ListView.separated(
+            controller: _scrollController,
+            itemCount: peers.length,
+            separatorBuilder: (context, index) => Divider(
+                height: 1,
+                thickness: 1,
+                color: DesktopPanelStyle.borderColor(context)),
+            itemBuilder: (BuildContext context, int index) {
+              return buildOnePeer(peers[index], false);
+            },
+          ),
+        );
+      case PeerUiType.grid:
+        return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 400,
+              mainAxisExtent: 96,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12),
+          itemCount: peers.length,
+          itemBuilder: (BuildContext context, int index) {
+            return buildOnePeer(peers[index], false);
+          },
+        );
+      case PeerUiType.tile:
+        return DynamicGridView.builder(
+            gridDelegate: SliverGridDelegateWithWrapping(
+                mainAxisSpacing: 8, crossAxisSpacing: 8),
+            itemCount: peers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return buildOnePeer(peers[index], false);
+            });
+    }
   }
 
   var _queryInterval = const Duration(seconds: 20);

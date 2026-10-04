@@ -5,6 +5,7 @@ import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +14,7 @@ import '../../common/formatter/id_formatter.dart';
 import '../../models/peer_model.dart';
 import '../../models/platform_model.dart';
 import '../../desktop/widgets/material_mod_popup_menu.dart' as mod_menu;
+import '../../desktop/widgets/panel_style.dart';
 import '../../desktop/widgets/popup_menu.dart';
 import 'dart:math' as math;
 
@@ -92,6 +94,7 @@ class _PeerCardState extends State<_PeerCard>
   }
 
   Widget _buildLandscape() {
+    if (isDesktop) return _buildDesktopLandscape();
     final peer = super.widget.peer;
     var deco = Rx<BoxDecoration?>(
       BoxDecoration(
@@ -124,6 +127,209 @@ class _PeerCardState extends State<_PeerCard>
           child: Obx(() => peerCardUiType.value == PeerUiType.grid
               ? _buildPeerCard(context, peer, deco)
               : _buildPeerTile(context, peer, deco))),
+    );
+  }
+
+  Widget _buildDesktopLandscape() {
+    final peer = super.widget.peer;
+    final hover = false.obs;
+    return MouseRegion(
+      onEnter: (_) => hover.value = true,
+      onExit: (_) => hover.value = false,
+      child: gestureDetector(
+        child: Obx(() {
+          final type = peerCardUiType.value;
+          final isList = type == PeerUiType.list;
+          final borderColor = hover.value
+              ? MyTheme.accent.withOpacity(0.5)
+              : DesktopPanelStyle.borderColor(context);
+          final decoration = isList
+              ? BoxDecoration(
+                  color: hover.value
+                      ? MyTheme.accent.withOpacity(0.06)
+                      : DesktopPanelStyle.panelColor(context))
+              : DesktopPanelStyle.panel(context,
+                  radius: DesktopPanelStyle.tileRadius,
+                  borderColor: borderColor);
+          return Tooltip(
+            message: peer.tags.isNotEmpty
+                ? '${translate('Tags')}: ${peer.tags.join(', ')}'
+                : '',
+            child: Container(
+              decoration: decoration,
+              child: type == PeerUiType.grid
+                  ? _buildDesktopGridTile(peer)
+                  : _buildDesktopRow(peer, isList: isList),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  String _desktopPeerTitle(Peer peer) {
+    if (peer.alias.isNotEmpty) return peer.alias;
+    hideUsernameOnCard ??=
+        bind.mainGetBuildinOption(key: kHideUsernameOnCard) == 'Y';
+    final name = hideUsernameOnCard == true
+        ? peer.hostname
+        : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}';
+    return name.isNotEmpty ? name : formatID(peer.id);
+  }
+
+  String _desktopPeerSubtitle(Peer peer) {
+    final note = _showNote(peer) ? peer.note : '';
+    return [formatID(peer.id), if (note.isNotEmpty) note].join('  ·  ');
+  }
+
+  Widget _desktopPlatformGlyph(Peer peer, double size) {
+    var platform = peer.platform;
+    final color = DesktopPanelStyle.secondaryTextColor(context);
+    Widget glyph;
+    if (platform.isEmpty) {
+      glyph = Icon(Icons.desktop_windows_outlined, size: size * 0.8, color: color);
+    } else {
+      if (platform == kPeerPlatformMacOS) {
+        platform = 'mac';
+      } else if (platform != kPeerPlatformLinux &&
+          platform != kPeerPlatformAndroid) {
+        platform = 'win';
+      } else {
+        platform = platform.toLowerCase();
+      }
+      glyph = SvgPicture.asset('assets/$platform.svg',
+          width: size,
+          height: size,
+          colorFilter: ColorFilter.mode(color, BlendMode.srcIn));
+    }
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          glyph,
+          if (_shouldBuildPasswordIcon(peer))
+            Positioned(
+              top: 0,
+              left: 0,
+              child: Icon(Icons.key, size: size / 3, color: MyTheme.accent),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _desktopOnlineDot(Peer peer) {
+    return Tooltip(
+      message: translate(peer.online ? 'Online' : 'Offline'),
+      waitDuration: const Duration(seconds: 1),
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: peer.online ? const Color(0xFF34C759) : const Color(0xFF9A9BA3),
+        ),
+      ),
+    );
+  }
+
+  Widget _desktopTagDots(Peer peer) {
+    final colors = _frontN(peer.tags, 25)
+        .map((e) => gFFI.abModel.getCurrentAbTagColor(e))
+        .toList();
+    if (colors.isEmpty) return const SizedBox.shrink();
+    return CustomPaint(painter: TagPainter(radius: 4, colors: colors));
+  }
+
+  Widget _buildDesktopGridTile(Peer peer) {
+    final secondary = DesktopPanelStyle.secondaryTextColor(context);
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 6, 12),
+          child: Row(
+            children: [
+              _desktopPlatformGlyph(peer, 40),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _desktopPeerTitle(peer),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _desktopPeerSubtitle(peer),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: secondary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: checkBoxOrActionMoreLandscape(peer, isTile: false),
+              ),
+            ],
+          ),
+        ),
+        Positioned(top: 12, right: 14, child: _desktopOnlineDot(peer)),
+        Positioned(top: 12, right: 30, child: _desktopTagDots(peer)),
+      ],
+    );
+  }
+
+  Widget _buildDesktopRow(Peer peer, {required bool isList}) {
+    final secondary = DesktopPanelStyle.secondaryTextColor(context);
+    final idStyle = TextStyle(
+      fontSize: 12,
+      color: secondary,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    final title = Text(
+      _desktopPeerTitle(peer),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: isList ? 14 : 13, fontWeight: FontWeight.w600),
+    );
+    final subtitle = Text(_desktopPeerSubtitle(peer),
+        maxLines: 1, overflow: TextOverflow.ellipsis, style: idStyle);
+    return Padding(
+      padding: EdgeInsets.only(left: isList ? 16 : 10, right: 4),
+      child: Row(
+        children: [
+          _desktopPlatformGlyph(peer, isList ? 22 : 20),
+          SizedBox(width: isList ? 14 : 10),
+          if (isList) ...[
+            Expanded(flex: 3, child: title),
+            const SizedBox(width: 12),
+            Expanded(flex: 2, child: subtitle),
+          ] else
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [title, subtitle],
+              ),
+            ),
+          _desktopTagDots(peer).marginOnly(right: 4),
+          _desktopOnlineDot(peer).marginSymmetric(horizontal: 6),
+          checkBoxOrActionMoreLandscape(peer, isTile: true),
+        ],
+      ),
     );
   }
 

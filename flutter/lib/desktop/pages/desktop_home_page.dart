@@ -12,6 +12,7 @@ import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
+import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/desktop/widgets/update_progress.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/server_model.dart';
@@ -59,6 +60,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   Widget build(BuildContext context) {
     super.build(context);
     final isIncomingOnly = bind.isIncomingOnly();
+    if (!isIncomingOnly) {
+      return _buildBlock(child: _buildPanelLayout(context));
+    }
     return _buildBlock(
         child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,6 +186,249 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: ConnectionPage(),
+    );
+  }
+
+  Widget _buildPanelLayout(BuildContext context) {
+    final isOutgoingOnly = bind.isOutgoingOnly();
+    return Container(
+      color: DesktopPanelStyle.windowColor(context),
+      child: ConnectionPage(
+        banner: _buildBannerArea(context),
+        incomingPanel: isOutgoingOnly ? null : _buildIncomingPanel(context),
+        footerLeading: isOutgoingOnly ? _buildSettingsButton(context) : null,
+      ),
+    );
+  }
+
+  Widget _buildBannerArea(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (!bind.isOutgoingOnly()) buildPresetPasswordWarning(),
+        if (bind.isCustomClient())
+          Align(alignment: Alignment.center, child: loadPowered(context)),
+        Align(alignment: Alignment.center, child: loadLogo()),
+        Obx(() => buildHelpCards(stateGlobal.updateUrl.value)),
+      ],
+    );
+  }
+
+  Widget _buildSettingsButton(BuildContext context) {
+    return IconButton(
+      tooltip: translate('Settings'),
+      splashRadius: 16,
+      icon: Icon(Icons.settings_outlined,
+          size: 18, color: DesktopPanelStyle.secondaryTextColor(context)),
+      onPressed: () {
+        if (DesktopSettingPage.tabKeys.isNotEmpty) {
+          DesktopSettingPage.switch2page(DesktopSettingPage.tabKeys[0]);
+        }
+      },
+    );
+  }
+
+  Widget _buildIncomingPanel(BuildContext context) {
+    final model = gFFI.serverModel;
+    final secondary = DesktopPanelStyle.secondaryTextColor(context);
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: DesktopPanelStyle.panel(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Flexible(
+                child: Text(
+                  translate('Your Desktop'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w600, height: 1.2),
+                ),
+              ),
+              Tooltip(
+                waitDuration: const Duration(milliseconds: 300),
+                message: translate('desk_tip'),
+                child:
+                    Icon(Icons.help_outline_outlined, size: 16, color: secondary),
+              ).marginOnly(left: 6),
+              const Spacer(),
+              buildPopupMenu(context),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(translate('ID'), style: TextStyle(fontSize: 13, color: secondary)),
+          Row(
+            children: [
+              Flexible(
+                child: IntrinsicWidth(
+                  child: GestureDetector(
+                    onDoubleTap: () {
+                      Clipboard.setData(
+                          ClipboardData(text: model.serverId.text));
+                      showToast(translate("Copied"));
+                    },
+                    child: TextFormField(
+                      controller: model.serverId,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 4),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w500,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
+                    ).workaroundFreezeLinuxMint(),
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: translate('Copy to clipboard'),
+                splashRadius: 18,
+                icon: Icon(Icons.copy_rounded, size: 20, color: secondary),
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: model.serverId.text));
+                  showToast(translate("Copied"));
+                },
+              ).marginOnly(left: 4),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ChangeNotifierProvider.value(
+            value: gFFI.serverModel,
+            child: Consumer<ServerModel>(
+              builder: (context, model, child) =>
+                  _buildPanelPassword(context, model),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPanelPassword(BuildContext context, ServerModel model) {
+    final secondary = DesktopPanelStyle.secondaryTextColor(context);
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    final refreshHover = false.obs;
+    final showOneTime = model.approveMode != 'click' &&
+        model.verificationMethod != kUsePermanentPassword;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(translate("One-time Password"),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 13, color: secondary)),
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onDoubleTap: () {
+                  if (showOneTime) {
+                    Clipboard.setData(
+                        ClipboardData(text: model.serverPasswd.text));
+                    showToast(translate("Copied"));
+                  }
+                },
+                child: TextFormField(
+                  controller: model.serverPasswd,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 4),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ).workaroundFreezeLinuxMint(),
+              ),
+            ),
+            if (showOneTime)
+              AnimatedRotationWidget(
+                onPressed: () => bind.mainUpdateTemporaryPassword(),
+                child: Tooltip(
+                  message: translate('Refresh Password'),
+                  child: Obx(() => RotatedBox(
+                      quarterTurns: 2,
+                      child: Icon(
+                        Icons.refresh,
+                        color: refreshHover.value ? textColor : secondary,
+                        size: 22,
+                      ))),
+                ),
+                onHover: (value) => refreshHover.value = value,
+              ).marginOnly(left: 8),
+            if (!bind.isDisableSettings())
+              IconButton(
+                tooltip: translate('Change Password'),
+                splashRadius: 18,
+                icon: Icon(Icons.edit_outlined, size: 20, color: secondary),
+                onPressed: () =>
+                    DesktopSettingPage.switch2page(SettingsTabKey.safety),
+              ).marginOnly(left: 4),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBanner(String title, String content, String btnText,
+      GestureTapCallback onPressed, String? help, String? link,
+      VoidCallback? onClose) {
+    final secondary = DesktopPanelStyle.secondaryTextColor(context);
+    final isWarning = title == 'Warning' || title == 'Permissions';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: DesktopPanelStyle.panel(context),
+      child: Row(
+        children: [
+          Icon(isWarning ? Icons.warning_amber_rounded : Icons.info_outline,
+              size: 20, color: isWarning ? kColorWarn : MyTheme.accent),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text.rich(
+              TextSpan(children: [
+                if (title.isNotEmpty)
+                  TextSpan(
+                      text: '${translate(title)}  ',
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                if (content.isNotEmpty) TextSpan(text: translate(content)),
+              ]),
+              style: const TextStyle(fontSize: 13, height: 1.4),
+            ),
+          ),
+          if (help != null && link != null)
+            TextButton(
+              onPressed: () async => await launchUrl(Uri.parse(link)),
+              child: Text(translate(help)),
+            ).marginOnly(left: 8),
+          if (btnText.isNotEmpty)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: onPressed,
+              child: Text(translate(btnText)),
+            ).marginOnly(left: 8),
+          if (onClose != null)
+            IconButton(
+              tooltip: translate('Close'),
+              splashRadius: 16,
+              icon: Icon(Icons.close, size: 18, color: secondary),
+              onPressed: onClose,
+            ).marginOnly(left: 4),
+        ],
+      ),
     );
   }
 
@@ -595,6 +842,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           isCardClosed = true;
         });
       }
+    }
+
+    if (!bind.isIncomingOnly()) {
+      return _buildBanner(title, content, btnText, onPressed, help, link,
+          closeButton == true ? closeCard : null);
     }
 
     return Stack(

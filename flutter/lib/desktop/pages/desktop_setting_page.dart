@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/audio_input.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_hbb/common/widgets/setting_widgets.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_home_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
+import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/desktop/widgets/remote_toolbar.dart';
 import 'package:flutter_hbb/mobile/widgets/dialog.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
@@ -25,9 +27,10 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../common/widgets/dialog.dart';
 import '../../common/widgets/login.dart';
 
-const double _kTabWidth = 200;
-const double _kTabHeight = 42;
-const double _kCardFixedWidth = 540;
+const double _kTabWidth = 220;
+const double _kTabHeight = 36;
+const double _kContentMaxWidth = 640;
+const double _kContentPadding = 32;
 const double _kCardLeftMargin = 15;
 const double _kContentHMargin = 15;
 const double _kContentHSubMargin = _kContentHMargin + 33;
@@ -273,31 +276,57 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final tabs = _settingTabs();
+    final pages = _children();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: DesktopPanelStyle.windowColor(context),
       body: _buildBlock(
         children: <Widget>[
           SizedBox(
             width: _kTabWidth,
             child: Column(
               children: [
-                _header(context),
-                Flexible(child: _listView(tabs: _settingTabs())),
+                if (isWeb) _header(context) else const SizedBox(height: 16),
+                Flexible(child: _listView(tabs: tabs)),
               ],
             ),
           ),
-          const VerticalDivider(width: 1),
+          VerticalDivider(
+              width: 1, color: DesktopPanelStyle.borderColor(context)),
           Expanded(
-            child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: PageView(
-                controller: controller,
-                physics: NeverScrollableScrollPhysics(),
-                children: _children(),
-              ),
+            child: PageView(
+              controller: controller,
+              physics: NeverScrollableScrollPhysics(),
+              children: [
+                for (var i = 0; i < pages.length; i++)
+                  _pageWithTitle(tabs[i].label, pages[i]),
+              ],
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget _pageWithTitle(String label, Widget page) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+            maxWidth: _kContentMaxWidth + _kContentPadding * 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              translate(label),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            ).marginOnly(
+                left: _kContentPadding, top: 24, right: _kContentPadding),
+            Expanded(
+              child: page.marginSymmetric(horizontal: _kContentPadding),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -352,10 +381,18 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
   Widget _listItem({required _TabInfo tab}) {
     return Obx(() {
       bool selected = tab.key == selectedTab.value;
-      return SizedBox(
-        width: _kTabWidth,
+      final color = selected
+          ? _accentColor
+          : Theme.of(context).textTheme.titleLarge?.color;
+      return Container(
         height: _kTabHeight,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+        decoration: BoxDecoration(
+          color: selected ? _accentColor.withOpacity(0.12) : null,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: InkWell(
+          borderRadius: BorderRadius.circular(8),
           onTap: () {
             if (selectedTab.value != tab.key) {
               int index = DesktopSettingPage.tabKeys.indexOf(tab.key);
@@ -367,22 +404,21 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
             selectedTab.value = tab.key;
           },
           child: Row(children: [
-            Container(
-              width: 4,
-              height: _kTabHeight * 0.7,
-              color: selected ? _accentColor : null,
-            ),
             Icon(
-              selected ? tab.selected : tab.unselected,
-              color: selected ? _accentColor : null,
-              size: 20,
-            ).marginOnly(left: 13, right: 10),
-            Text(
-              translate(tab.label),
-              style: TextStyle(
-                  color: selected ? _accentColor : null,
-                  fontWeight: FontWeight.w400,
-                  fontSize: _kContentFontSize),
+              tab.unselected,
+              color: color,
+              size: 18,
+            ).marginOnly(left: 10, right: 10),
+            Expanded(
+              child: Text(
+                translate(tab.label),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: color,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    fontSize: 14),
+              ),
             ),
           ]),
         ),
@@ -2612,36 +2648,156 @@ Widget _Card(
     {required String title,
     required List<Widget> children,
     List<Widget>? title_suffix}) {
-  return Row(
-    children: [
-      Flexible(
-        child: SizedBox(
-          width: _kCardFixedWidth,
-          child: Card(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                        child: Text(
-                      translate(title),
-                      textAlign: TextAlign.start,
-                      style: const TextStyle(
-                        fontSize: _kTitleFontSize,
-                      ),
-                    )),
-                    ...?title_suffix
-                  ],
-                ).marginOnly(left: _kContentHMargin, top: 10, bottom: 10),
-                ...children
-                    .map((e) => e.marginOnly(top: 4, right: _kContentHMargin)),
-              ],
-            ).marginOnly(bottom: 10),
-          ).marginOnly(left: _kCardLeftMargin, top: 15),
+  return Builder(
+    builder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+                child: Text(
+              translate(title),
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: DesktopPanelStyle.secondaryTextColor(context),
+              ),
+            )),
+            ...?title_suffix
+          ],
+        ).marginOnly(top: 24, bottom: 8),
+        Container(
+          decoration: DesktopPanelStyle.panel(context),
+          clipBehavior: Clip.antiAlias,
+          child: _SettingsRows(
+            separatorColor: DesktopPanelStyle.borderColor(context),
+            children:
+                children.map((e) => e.marginOnly(left: 6, right: 16)).toList(),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Lays out a card's rows top to bottom with a minimum row height and a
+/// hairline between rows. Children that lay out to zero height (hidden
+/// options) take no space and get no separator.
+class _SettingsRows extends MultiChildRenderObjectWidget {
+  const _SettingsRows({required super.children, required this.separatorColor});
+
+  final Color separatorColor;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSettingsRows(separatorColor);
+
+  @override
+  void updateRenderObject(
+      BuildContext context, _RenderSettingsRows renderObject) {
+    renderObject.separatorColor = separatorColor;
+  }
+}
+
+class _SettingsRowsParentData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderSettingsRows extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _SettingsRowsParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _SettingsRowsParentData> {
+  _RenderSettingsRows(this._separatorColor);
+
+  static const double _minRowHeight = 44;
+  static const double _rowPadding = 4;
+
+  final List<double> _separators = [];
+  Color _separatorColor;
+  set separatorColor(Color value) {
+    if (value == _separatorColor) return;
+    _separatorColor = value;
+    markNeedsPaint();
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _SettingsRowsParentData) {
+      child.parentData = _SettingsRowsParentData();
+    }
+  }
+
+  @override
+  void performLayout() {
+    final width = constraints.maxWidth;
+    _separators.clear();
+    double y = 0;
+    var hasRow = false;
+    var child = firstChild;
+    while (child != null) {
+      final parentData = child.parentData as _SettingsRowsParentData;
+      child.layout(BoxConstraints(maxWidth: width), parentUsesSize: true);
+      final height = child.size.height;
+      if (height == 0) {
+        parentData.offset = Offset(0, y);
+      } else {
+        if (hasRow) _separators.add(y);
+        hasRow = true;
+        final rowHeight = height + _rowPadding * 2 > _minRowHeight
+            ? height + _rowPadding * 2
+            : _minRowHeight;
+        parentData.offset = Offset(0, y + (rowHeight - height) / 2);
+        y += rowHeight;
+      }
+      child = parentData.nextSibling;
+    }
+    size = constraints.constrain(Size(width, y));
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    defaultPaint(context, offset);
+    final paint = Paint()..color = _separatorColor;
+    for (final y in _separators) {
+      context.canvas
+          .drawRect(Rect.fromLTWH(offset.dx, offset.dy + y, size.width, 1), paint);
+    }
+  }
+}
+
+Widget _settingsSwitch(bool value, ValueChanged<bool>? onChanged) {
+  return Builder(builder: (context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return SizedBox(
+      width: 42,
+      height: 26,
+      child: FittedBox(
+        child: Theme(
+          data: Theme.of(context).copyWith(useMaterial3: true),
+          child: Switch(
+            value: value,
+            onChanged: onChanged,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            thumbColor: const MaterialStatePropertyAll(Colors.white),
+            trackOutlineColor:
+                const MaterialStatePropertyAll(Colors.transparent),
+            trackColor: MaterialStateProperty.resolveWith((states) {
+              final on = states.contains(MaterialState.selected);
+              final color = on
+                  ? _accentColor
+                  : (isDark ? const Color(0xFF3A3C45) : const Color(0xFFD9D9DE));
+              return states.contains(MaterialState.disabled)
+                  ? color.withOpacity(0.5)
+                  : color;
+            }),
+          ),
         ),
       ),
-    ],
-  );
+    );
+  });
 }
 
 // ignore: non_constant_identifier_names
@@ -2690,22 +2846,24 @@ Widget _OptionCheckBox(
 
   return GestureDetector(
     child: Obx(
-      () => Row(
-        children: [
-          Checkbox(
-                  value: ref.value,
-                  onChanged: enabled && !isOptFixed ? onChanged : null)
-              .marginOnly(right: 5),
-          Offstage(
-            offstage: !ref.value || checkedIcon == null,
-            child: checkedIcon?.marginOnly(right: 5),
-          ),
-          Expanded(
-              child: Text(
-            translate(label),
-            style: TextStyle(color: disabledTextColor(context, enabled)),
-          ))
-        ],
+      () => ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 36),
+        child: Row(
+          children: [
+            Expanded(
+                child: Text(
+              translate(label),
+              style: TextStyle(color: disabledTextColor(context, enabled)),
+            )),
+            Offstage(
+              offstage: !ref.value || checkedIcon == null,
+              child: checkedIcon?.marginOnly(left: 8),
+            ),
+            _settingsSwitch(
+                    ref.value, enabled && !isOptFixed ? onChanged : null)
+                .marginOnly(left: 12),
+          ],
+        ),
       ),
     ).marginOnly(left: _kCheckBoxLeftMargin),
     onTap: enabled && !isOptFixed
@@ -2968,11 +3126,15 @@ Widget _lock(
       offstage: !locked,
       child: Row(
         children: [
-          Flexible(
-            child: SizedBox(
-              width: _kCardFixedWidth,
-              child: Card(
+          Expanded(
+            child: Container(
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    minimumSize: const Size.fromHeight(44),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
                   child: SizedBox(
                       height: 25,
                       child: Row(
@@ -2995,9 +3157,8 @@ Widget _lock(
                       checkUnlockPinDialog(unlockPin, onUnlock);
                     }
                   },
-                ).marginSymmetric(horizontal: 2, vertical: 4),
-              ).marginOnly(left: _kCardLeftMargin),
-            ).marginOnly(top: 10),
+                ),
+            ).marginOnly(top: 24),
           ),
         ],
       ));

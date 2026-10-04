@@ -11,6 +11,7 @@ import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/desktop/widgets/material_mod_popup_menu.dart'
     as mod_menu;
+import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
 import 'package:flutter_hbb/models/ab_model.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
@@ -110,10 +111,16 @@ class _PeerTabPageState extends State<PeerTabPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Obx(() => SizedBox(
-              height: 32,
+              height: isDesktop ? 40 : 32,
               child: Container(
                 padding: stateGlobal.isPortrait.isTrue
                     ? EdgeInsets.symmetric(horizontal: 2)
+                    : null,
+                decoration: isDesktop
+                    ? BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
+                                color: DesktopPanelStyle.borderColor(context))))
                     : null,
                 child: selectionWrap(Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,7 +135,8 @@ class _PeerTabPageState extends State<PeerTabPage>
                   ],
                 )),
               ),
-            ).paddingOnly(right: stateGlobal.isPortrait.isTrue ? 0 : 12)),
+            ).paddingOnly(
+                right: stateGlobal.isPortrait.isTrue || isDesktop ? 0 : 12)),
         _createPeersView(),
       ],
     );
@@ -157,6 +165,12 @@ class _PeerTabPageState extends State<PeerTabPage>
             bottom: BorderSide(width: 2, color: color!),
           ));
           counter += 1;
+          if (isDesktop) {
+            return ReorderableDragStartListener(
+                key: ValueKey(t),
+                index: counter,
+                child: _buildDesktopTab(model, t, selected));
+          }
           return ReorderableDragStartListener(
               key: ValueKey(t),
               index: counter,
@@ -183,6 +197,45 @@ class _PeerTabPageState extends State<PeerTabPage>
                     ),
                   )));
         }).toList());
+  }
+
+  Widget _buildDesktopTab(PeerTabModel model, int t, bool selected) {
+    final hover = false.obs;
+    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    final secondary = DesktopPanelStyle.secondaryTextColor(context);
+    return InkWell(
+      hoverColor: Colors.transparent,
+      onHover: (value) => hover.value = value,
+      onTap: isOptionFixed(kOptionPeerTabIndex)
+          ? null
+          : () async {
+              await handleTabSelection(t);
+              await bind.setLocalFlutterOption(
+                  k: kOptionPeerTabIndex, v: t.toString());
+            },
+      child: Obx(() => Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            margin: EdgeInsets.only(right: 4),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                    width: 2,
+                    color: selected ? MyTheme.accent : Colors.transparent),
+              ),
+            ),
+            child: Text(
+              model.tabTooltip(t),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                color: selected
+                    ? MyTheme.accent
+                    : (hover.value ? textColor : secondary),
+              ),
+            ),
+          )),
+    );
   }
 
   Widget _createPeersView() {
