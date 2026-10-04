@@ -1110,6 +1110,10 @@ class RustdeskImpl {
     throw UnimplementedError("mainLoadRecentPeersForAb");
   }
 
+  Future<String> mainLoadRecentPeersLimit({required int count, dynamic hint}) {
+    throw UnimplementedError("mainLoadRecentPeersLimit");
+  }
+
   Future<void> mainLoadFavPeers({dynamic hint}) {
     return Future(() => js.context.callMethod('getByName', ['load_fav_peers']));
   }

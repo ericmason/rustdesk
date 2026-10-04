@@ -1538,6 +1538,21 @@ pub fn main_load_recent_peers_for_ab(filter: String) -> String {
     "".to_string()
 }
 
+/// The `count` most recent peers, newest first. Reads only those peers' files.
+pub fn main_load_recent_peers_limit(count: i32) -> String {
+    if !config::APP_DIR.read().unwrap().is_empty() {
+        let all = PeerConfig::get_vec_id_modified_time_path(&None);
+        let peers: Vec<HashMap<&str, String>> =
+            PeerConfig::batch_peers(&all, 0, Some(count.max(0) as usize))
+                .0
+                .drain(..)
+                .map(|(id, _, p)| peer_to_map(id, p))
+                .collect();
+        return serde_json::ser::to_string(&peers).unwrap_or("".to_owned());
+    }
+    "".to_string()
+}
+
 pub fn main_load_fav_peers() {
     let push_to_flutter = |peers| {
         let data = HashMap::from([("name", "load_fav_peers".to_owned()), ("peers", peers)]);

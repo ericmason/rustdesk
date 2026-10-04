@@ -23,11 +23,10 @@ class AppDelegate: FlutterAppDelegate {
         // FlutterAppDelegate replaces APP_NAME only in the app menu.
         replaceAppNamePlaceholder(in: NSApplication.shared.mainMenu)
         // The Dock menu is built synchronously, so keep the recent peers
-        // cached and refresh them whenever the app gains or loses focus.
-        for name in [NSApplication.didBecomeActiveNotification, NSApplication.didResignActiveNotification] {
-            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                self?.refreshDockRecentPeers()
-            }
+        // cached and refresh them when the app loses focus, which is after
+        // any connection the user just made.
+        NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.refreshDockRecentPeers()
         }
     }
 
@@ -41,12 +40,16 @@ class AppDelegate: FlutterAppDelegate {
         }
     }
 
-    // Dock menu: New Connection, then up to 5 recent peers.
+    // Dock menu: New Connection, then up to 5 recent peers. The label is
+    // translated in Dart; until Dart has answered, there is no Dock menu.
+    private var dockNewConnectionTitle: String?
     private var dockRecentPeers: [[String: String]] = []
 
     override func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        defer { refreshDockRecentPeers() }
+        guard let title = dockNewConnectionTitle else { return nil }
         let menu = NSMenu()
-        let newConnection = NSMenuItem(title: "New Connection", action: #selector(dockNewConnection(_:)), keyEquivalent: "")
+        let newConnection = NSMenuItem(title: title, action: #selector(dockNewConnection(_:)), keyEquivalent: "")
         newConnection.target = self
         menu.addItem(newConnection)
         if !dockRecentPeers.isEmpty {
@@ -54,14 +57,20 @@ class AppDelegate: FlutterAppDelegate {
             for peer in dockRecentPeers {
                 guard let id = peer["id"], !id.isEmpty else { continue }
                 let name = peer["name"] ?? ""
-                let item = NSMenuItem(title: name.isEmpty ? id : "\(name) (\(id))", action: #selector(dockConnectPeer(_:)), keyEquivalent: "")
+                let label = AppDelegate.dockLabel(name.isEmpty ? id : "\(name) (\(id))")
+                let item = NSMenuItem(title: label, action: #selector(dockConnectPeer(_:)), keyEquivalent: "")
                 item.target = self
                 item.representedObject = id
                 menu.addItem(item)
             }
         }
-        refreshDockRecentPeers()
         return menu
+    }
+
+    /// One line, at most 40 characters, ending in an ellipsis when cut.
+    private static func dockLabel(_ text: String) -> String {
+        let line = text.components(separatedBy: .newlines).joined(separator: " ")
+        return line.count > 40 ? String(line.prefix(39)) + "…" : line
     }
 
     @objc private func dockNewConnection(_ sender: Any?) {
@@ -75,9 +84,11 @@ class AppDelegate: FlutterAppDelegate {
 
     private func refreshDockRecentPeers() {
         MainFlutterWindow.mainHostChannel?.invokeMethod("getRecentPeers", arguments: nil) { [weak self] result in
-            if let peers = result as? [[String: String]] {
-                self?.dockRecentPeers = Array(peers.prefix(5))
-            }
+            guard let result = result as? [String: Any],
+                  let title = result["newConnection"] as? String else { return }
+            self?.dockNewConnectionTitle = title
+            let peers = result["peers"] as? [[String: String]] ?? []
+            self?.dockRecentPeers = Array(peers.prefix(5))
         }
     }
 
