@@ -772,11 +772,20 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     }
 
     if (isMacOS) {
-      // The macOS runner sends this from the app menu's Settings item (⌘,).
+      // The macOS runner sends this from the app menu's Settings item (⌘,)
+      // and from About, which passes {"page": "about"}.
       kMacOSPermChannel.setMethodCallHandler((call) async {
         if (call.method == kMacOSShowSettings) {
           await windowOnTop(null);
-          DesktopTabPage.onAddSetting();
+          final args = call.arguments;
+          final page = args is Map
+              ? SettingsTabKey.values.asNameMap()[args['page']]
+              : null;
+          if (page == null) {
+            DesktopTabPage.onAddSetting();
+          } else {
+            DesktopSettingPage.switch2page(page);
+          }
         }
       });
     }
