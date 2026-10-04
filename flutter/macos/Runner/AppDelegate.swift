@@ -48,6 +48,19 @@ class AppDelegate: FlutterAppDelegate {
         }
     }
 
+    // Window > RustDesk brings the main window back after it was closed.
+    @IBAction func showMainWindow(_ sender: Any?) {
+        callMainWindow("showMainWindow")
+    }
+
+    // Clicking the Dock icon with no visible windows shows the main window.
+    override func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            showMainWindow(nil)
+        }
+        return true
+    }
+
     // Help > RustDesk Help.
     @IBAction func openRustDeskHelp(_ sender: Any?) {
         if let url = URL(string: "https://rustdesk.com/docs/") {

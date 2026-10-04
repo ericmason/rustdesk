@@ -324,6 +324,13 @@
                                     <action selector="arrangeInFront:" target="-1" id="DRN-fu-gQh"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Rmw-Sp-001"/>
+                            <menuItem title="RustDesk" id="Rmw-It-001">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showMainWindow:" target="Voe-Tx-rLC" id="Rmw-Ac-001"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
