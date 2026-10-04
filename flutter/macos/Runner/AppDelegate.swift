@@ -54,9 +54,15 @@ class AppDelegate: FlutterAppDelegate {
     }
 
     // Clicking the Dock icon with no visible windows shows the main window.
+    // Return false then, so AppKit doesn't also restore a minimized window.
+    // The --server, --cm and --tray processes keep the existing path through
+    // applicationShouldOpenUntitledFile (handle_application_should_open_untitled_file).
     override func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if !flag {
+        let arg = CommandLine.arguments.dropFirst().first ?? ""
+        let isMainProcess = !["--server", "--cm", "--tray"].contains(arg)
+        if !flag && isMainProcess && MainFlutterWindow.mainHostChannel != nil {
             showMainWindow(nil)
+            return false
         }
         return true
     }

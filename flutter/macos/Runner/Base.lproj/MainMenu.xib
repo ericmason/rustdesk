@@ -325,7 +325,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="Rmw-Sp-001"/>
-                            <menuItem title="RustDesk" id="Rmw-It-001">
+                            <menuItem title="APP_NAME" id="Rmw-It-001">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showMainWindow:" target="Voe-Tx-rLC" id="Rmw-Ac-001"/>
