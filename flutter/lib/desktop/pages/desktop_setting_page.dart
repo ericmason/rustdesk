@@ -1069,16 +1069,14 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
         child: InkWell(
           child: Obx(() => Row(
                 children: [
-                  Checkbox(
-                          value: has2fa.value,
-                          onChanged: enabled ? onChanged : null)
-                      .marginOnly(right: 5),
                   Expanded(
                       child: Text(
                     translate('enable-2fa-title'),
                     style:
                         TextStyle(color: disabledTextColor(context, enabled)),
-                  ))
+                  )),
+                  _settingsSwitch(has2fa.value, enabled ? onChanged : null)
+                      .marginOnly(left: 12),
                 ],
               )),
         ),
@@ -1112,16 +1110,15 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
           child: InkWell(
               child: Obx(() => Row(
                     children: [
-                      Checkbox(
-                              value: hasBot.value,
-                              onChanged: enabled ? onChangedBot : null)
-                          .marginOnly(right: 5),
                       Expanded(
                           child: Text(
                         translate('Telegram bot'),
                         style: TextStyle(
                             color: disabledTextColor(context, enabled)),
-                      ))
+                      )),
+                      _settingsSwitch(
+                              hasBot.value, enabled ? onChangedBot : null)
+                          .marginOnly(left: 12),
                     ],
                   ))),
         ),
@@ -1219,8 +1216,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
               await bind.mainSetOption(key: kOptionAccessMode, value: mode);
               setState(() {});
             }).marginOnly(left: _kContentHMargin),
-        Column(
-          children: [
+        ...[
             _OptionCheckBox(
                 context, 'Enable keyboard/mouse', kOptionEnableKeyboard,
                 enabled: enabled, fakeValue: fakeValue),
@@ -1259,8 +1255,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
             _OptionCheckBox(context, 'Enable remote configuration modification',
                 kOptionAllowRemoteConfigModification,
                 enabled: enabled, fakeValue: fakeValue),
-          ],
-        ),
+        ],
       ]);
     }
 
@@ -1355,20 +1350,20 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
             child: InkWell(
                 child: Row(
               children: [
-                Checkbox(
-                        value: model.allowNumericOneTimePassword,
-                        onChanged: isNumOPTChangable
-                            ? (bool? v) {
-                                model.switchAllowNumericOneTimePassword();
-                              }
-                            : null)
-                    .marginOnly(right: 5),
                 Expanded(
                     child: Text(
                   translate('Numeric one-time password'),
                   style: TextStyle(
                       color: disabledTextColor(context, isNumOPTChangable)),
-                ))
+                )),
+                _settingsSwitch(
+                        model.allowNumericOneTimePassword,
+                        isNumOPTChangable
+                            ? (bool? v) {
+                                model.switchAllowNumericOneTimePassword();
+                              }
+                            : null)
+                    .marginOnly(left: 12),
               ],
             )),
             onTap: isNumOPTChangable
@@ -1457,15 +1452,14 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
       child: GestureDetector(
           child: Row(
             children: [
-              Checkbox(
-                      value: value,
-                      onChanged: enabled ? (_) => onChanged(!value) : null)
-                  .marginOnly(right: 5),
               Expanded(
                 child: Text(translate('Enable RDP session sharing'),
                     style:
                         TextStyle(color: disabledTextColor(context, enabled))),
-              )
+              ),
+              _settingsSwitch(
+                      value, enabled ? (_) => onChanged(!value) : null)
+                  .marginOnly(left: 12),
             ],
           ).marginOnly(left: _kCheckBoxLeftMargin),
           onTap: enabled ? () => onChanged(!value) : null),
@@ -1557,10 +1551,6 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
           message: translate('whitelist_tip'),
           child: Obx(() => Row(
                 children: [
-                  Checkbox(
-                          value: hasWhitelist.value,
-                          onChanged: enabled && !isOptFixed ? onChanged : null)
-                      .marginOnly(right: 5),
                   Offstage(
                     offstage: !hasWhitelist.value,
                     child: MouseRegion(
@@ -1575,7 +1565,10 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                     translate('Use IP Whitelisting'),
                     style:
                         TextStyle(color: disabledTextColor(context, enabled)),
-                  ))
+                  )),
+                  _settingsSwitch(hasWhitelist.value,
+                          enabled && !isOptFixed ? onChanged : null)
+                      .marginOnly(left: 12),
                 ],
               )),
         ),
@@ -1607,10 +1600,6 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
         message: translate('id_whitelist_tip'),
         child: Obx(() => Row(
               children: [
-                Checkbox(
-                        value: hasIdWhitelist.value,
-                        onChanged: enabled && !isOptFixed ? onChanged : null)
-                    .marginOnly(right: 5),
                 Offstage(
                   offstage: !hasIdWhitelist.value,
                   child: MouseRegion(
@@ -1624,7 +1613,10 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                     child: Text(
                   translate('Use ID whitelisting'),
                   style: TextStyle(color: disabledTextColor(context, enabled)),
-                ))
+                )),
+                _settingsSwitch(hasIdWhitelist.value,
+                        enabled && !isOptFixed ? onChanged : null)
+                    .marginOnly(left: 12),
               ],
             )),
       ),
@@ -1751,15 +1743,14 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
     return GestureDetector(
       child: Obx(() => Row(
             children: [
-              Checkbox(
-                      value: unlockPin.isNotEmpty,
-                      onChanged: enabled && !isOptFixed ? onChanged : null)
-                  .marginOnly(right: 5),
               Expanded(
                   child: Text(
                 translate('Unlock with PIN'),
                 style: TextStyle(color: disabledTextColor(context, enabled)),
-              ))
+              )),
+              _settingsSwitch(unlockPin.isNotEmpty,
+                      enabled && !isOptFixed ? onChanged : null)
+                  .marginOnly(left: 12),
             ],
           )),
       onTap: enabled
@@ -2225,13 +2216,12 @@ class _DisplayState extends State<_Display> {
     return GestureDetector(
         child: Row(
           children: [
-            Checkbox(
-                    value: value,
-                    onChanged: isOptFixed ? null : (_) => onChanged(!value))
-                .marginOnly(right: 5),
             Expanded(
               child: Text(translate(label)),
-            )
+            ),
+            _settingsSwitch(
+                    value, isOptFixed ? null : (_) => onChanged(!value))
+                .marginOnly(left: 12),
           ],
         ).marginOnly(left: _kCheckBoxLeftMargin),
         onTap: isOptFixed ? null : () => onChanged(!value));
@@ -2374,13 +2364,11 @@ class _CheckboxState extends State<_Checkbox> {
     return GestureDetector(
       child: Row(
         children: [
-          Checkbox(
-            value: value,
-            onChanged: (_) => onChanged(!value),
-          ).marginOnly(right: 5),
           Expanded(
             child: Text(translate(widget.label)),
-          )
+          ),
+          _settingsSwitch(value, (_) => onChanged(!value))
+              .marginOnly(left: 12),
         ],
       ).marginOnly(left: _kCheckBoxLeftMargin),
       onTap: () => onChanged(!value),
