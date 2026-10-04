@@ -41,13 +41,16 @@ class AppDelegate: FlutterAppDelegate {
     }
 
     // Dock menu: New Connection, then up to 5 recent peers. The label is
-    // translated in Dart; until Dart has answered, there is no Dock menu.
+    // translated in Dart; until Dart has answered, it shows in English. The
+    // --server, --cm, and --tray processes have no main window, so no menu.
     private var dockNewConnectionTitle: String?
     private var dockRecentPeers: [[String: String]] = []
 
     override func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let mode = CommandLine.arguments.dropFirst().first ?? ""
+        if ["--server", "--cm", "--tray"].contains(mode) { return nil }
         defer { refreshDockRecentPeers() }
-        guard let title = dockNewConnectionTitle else { return nil }
+        let title = dockNewConnectionTitle ?? "New Connection"
         let menu = NSMenu()
         let newConnection = NSMenuItem(title: title, action: #selector(dockNewConnection(_:)), keyEquivalent: "")
         newConnection.target = self
