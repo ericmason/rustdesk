@@ -193,13 +193,32 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isOutgoingOnly = bind.isOutgoingOnly();
     return Container(
       color: DesktopPanelStyle.windowColor(context),
-      child: ConnectionPage(
-        banner: _buildBannerArea(context),
-        incomingPanel: isOutgoingOnly ? null : _buildIncomingPanel(context),
-        footerLeading: isOutgoingOnly ? _buildSettingsButton(context) : null,
-        footerTrailing: isOutgoingOnly || bind.isDisableSettings()
-            ? null
-            : _buildFooterSettingsButton(context),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: DesktopPanelStyle.headerWashHeight(context),
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                    gradient: DesktopPanelStyle.headerWash(context)),
+              ),
+            ),
+          ),
+          ConnectionPage(
+            banner: _buildBannerArea(context),
+            incomingPanel:
+                isOutgoingOnly ? null : _buildIncomingPanel(context),
+            footerLeading:
+                isOutgoingOnly ? _buildSettingsButton(context) : null,
+            footerTrailing: isOutgoingOnly || bind.isDisableSettings()
+                ? null
+                : _buildFooterSettingsButton(context),
+          ),
+        ],
       ),
     );
   }

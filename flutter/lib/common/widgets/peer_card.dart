@@ -264,7 +264,8 @@ class _PeerCardState extends State<_PeerCard>
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontSize: DesktopPanelStyle.fontTitle,
-                          fontWeight: FontWeight.w600),
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: [FontFeature.tabularFigures()]),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -305,7 +306,9 @@ class _PeerCardState extends State<_PeerCard>
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(
-          fontSize: DesktopPanelStyle.fontTitle, fontWeight: FontWeight.w600),
+          fontSize: DesktopPanelStyle.fontTitle,
+          fontWeight: FontWeight.w600,
+          fontFeatures: [FontFeature.tabularFigures()]),
     );
     final subtitle = Text(_desktopPeerSubtitle(peer),
         maxLines: 1, overflow: TextOverflow.ellipsis, style: idStyle);
