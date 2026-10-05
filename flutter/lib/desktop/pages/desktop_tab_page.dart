@@ -98,12 +98,7 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
               controller: tabController,
               tail: Offstage(
                 offstage: bind.isIncomingOnly() || bind.isDisableSettings(),
-                child: ActionIcon(
-                  message: 'Settings',
-                  icon: IconFont.menu,
-                  onTap: DesktopTabPage.onAddSetting,
-                  isClose: false,
-                ),
+                child: _SettingsButton(controller: tabController),
               ),
             )));
     return isMacOS || kUseCompatibleUiMode
@@ -115,5 +110,37 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
               child: tabWidget,
             ),
           );
+  }
+}
+
+class _SettingsButton extends StatelessWidget {
+  final DesktopTabController controller;
+
+  const _SettingsButton({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final state = controller.state.value;
+      if (state.tabs.isNotEmpty &&
+          state.selected < state.tabs.length &&
+          state.selectedTabInfo.key != kTabLabelHomePage) {
+        return const SizedBox.shrink();
+      }
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: TextButton.icon(
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(0, 28),
+          ),
+          icon: const Icon(Icons.settings_outlined, size: 16),
+          label:
+              Text(translate('Settings'), style: const TextStyle(fontSize: 13)),
+          onPressed: () => DesktopTabPage.onAddSetting(),
+        ),
+      );
+    });
   }
 }
