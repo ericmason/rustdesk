@@ -1550,8 +1550,16 @@ class _MainWindowBackButton extends StatelessWidget {
 
   const _MainWindowBackButton({required this.controller});
 
+  // The title bar drags the window only where a child takes the pointer, and
+  // the tab strip used to fill this space, so keep it filled.
   @override
   Widget build(BuildContext context) {
+    return ColoredBox(
+        color: Colors.transparent,
+        child: SizedBox.expand(child: _buildButton(context)));
+  }
+
+  Widget _buildButton(BuildContext context) {
     return Obx(() {
       final state = controller.state.value;
       if (state.tabs.isEmpty ||
