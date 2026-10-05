@@ -170,6 +170,9 @@ void runMainApp(bool startService) async {
     windowManager.setTitle(getWindowName());
     // Do not use `windowManager.setResizable()` here.
     setResizable(!bind.isIncomingOnly());
+    if (!bind.isIncomingOnly()) {
+      windowManager.setMinimumSize(const Size(480, 520));
+    }
   });
 }
 
