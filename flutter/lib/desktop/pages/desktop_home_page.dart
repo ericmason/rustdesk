@@ -232,7 +232,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final model = gFFI.serverModel;
     final secondary = DesktopPanelStyle.secondaryTextColor(context);
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: DesktopPanelStyle.panel(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +245,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w600, height: 1.2),
+                      fontSize: 15, fontWeight: FontWeight.w600, height: 1.2),
                 ),
               ),
               Tooltip(
@@ -258,7 +258,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               buildPopupMenu(context),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Text(translate('ID'), style: TextStyle(fontSize: 13, color: secondary)),
           Row(
             children: [
@@ -279,7 +279,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         contentPadding: EdgeInsets.symmetric(vertical: 4),
                       ),
                       style: const TextStyle(
-                        fontSize: 32,
+                        fontSize: 24,
                         fontWeight: FontWeight.w500,
                         fontFeatures: [FontFeature.tabularFigures()],
                       ),
@@ -298,7 +298,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               ).marginOnly(left: 4),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           ChangeNotifierProvider.value(
             value: gFFI.serverModel,
             child: Consumer<ServerModel>(
@@ -344,7 +344,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                     contentPadding: EdgeInsets.symmetric(vertical: 4),
                   ),
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 17,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ).workaroundFreezeLinuxMint(),

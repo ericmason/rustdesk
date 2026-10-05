@@ -378,7 +378,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     final buttonShape =
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(8));
     var w = Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: DesktopPanelStyle.panel(context),
       child: Ink(
         child: Column(
@@ -392,7 +392,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w600, height: 1.2),
+                        fontSize: 15, fontWeight: FontWeight.w600, height: 1.2),
                   ),
                 ),
                 Tooltip(
@@ -408,7 +408,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                 translate("outgoing_only_desk_tip"),
                 style: TextStyle(fontSize: 13, color: secondary),
               ).marginOnly(top: 6),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -476,7 +476,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                           keyboardType: TextInputType.visiblePassword,
                           focusNode: fieldFocusNode,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             height: 1.4,
                             fontFeatures: [FontFeature.tabularFigures()],
                           ),
@@ -490,7 +490,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                                   ? null
                                   : translate('Enter Remote ID'),
                               hintStyle:
-                                  TextStyle(fontSize: 18, color: secondary),
+                                  TextStyle(fontSize: 15, color: secondary),
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: borderColor)),
@@ -584,11 +584,11 @@ class _ConnectionPageState extends State<ConnectionPage>
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 16.0),
+              padding: const EdgeInsets.only(top: 10.0),
               child: Row(children: [
                 Expanded(
                   child: SizedBox(
-                    height: 44.0,
+                    height: 34.0,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
@@ -596,7 +596,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                         foregroundColor: Colors.white,
                         shape: buttonShape,
                         textStyle: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500),
+                            fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       onPressed: () {
                         onConnect();
@@ -608,7 +608,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                 const SizedBox(width: 12),
                 Expanded(
                   child: SizedBox(
-                    height: 44.0,
+                    height: 34.0,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         backgroundColor: DesktopPanelStyle.windowColor(context),
@@ -617,7 +617,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                         side: BorderSide(color: borderColor),
                         shape: buttonShape,
                         textStyle: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500),
+                            fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       onPressed: () => onConnect(isFileTransfer: true),
                       child: Text(translate("Transfer file")),
@@ -626,7 +626,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                 ),
                 const SizedBox(width: 12),
                 Container(
-                  height: 44.0,
+                  height: 34.0,
                   width: 44.0,
                   decoration: BoxDecoration(
                     color: DesktopPanelStyle.windowColor(context),
