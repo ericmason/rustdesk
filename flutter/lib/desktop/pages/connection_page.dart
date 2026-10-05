@@ -318,17 +318,32 @@ class _ConnectionPageState extends State<ConnectionPage>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (widget.banner != null) widget.banner!,
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (widget.incomingPanel != null) ...[
-                    Expanded(child: widget.incomingPanel!),
-                    const SizedBox(width: 16),
-                  ],
-                  Expanded(child: _buildRemoteIDTextField(context)),
-                ],
-              ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (widget.incomingPanel != null &&
+                    constraints.maxWidth < 560) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      widget.incomingPanel!,
+                      const SizedBox(height: 12),
+                      _buildRemoteIDTextField(context),
+                    ],
+                  );
+                }
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (widget.incomingPanel != null) ...[
+                        Expanded(child: widget.incomingPanel!),
+                        const SizedBox(width: 16),
+                      ],
+                      Expanded(child: _buildRemoteIDTextField(context)),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             Expanded(child: PeerTabPage()),
@@ -595,6 +610,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                         backgroundColor: MyTheme.accent,
                         foregroundColor: Colors.white,
                         shape: buttonShape,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         textStyle: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500),
                       ),
@@ -616,6 +632,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                             Theme.of(context).textTheme.titleLarge?.color,
                         side: BorderSide(color: borderColor),
                         shape: buttonShape,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         textStyle: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500),
                       ),

@@ -251,15 +251,16 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               Tooltip(
                 waitDuration: const Duration(milliseconds: 300),
                 message: translate('desk_tip'),
-                child:
-                    Icon(Icons.help_outline_outlined, size: 16, color: secondary),
+                child: Icon(Icons.help_outline_outlined,
+                    size: 16, color: secondary),
               ).marginOnly(left: 6),
               const Spacer(),
               buildPopupMenu(context),
             ],
           ),
           const SizedBox(height: 6),
-          Text(translate('ID'), style: TextStyle(fontSize: 13, color: secondary)),
+          Text(translate('ID'),
+              style: TextStyle(fontSize: 13, color: secondary)),
           Row(
             children: [
               Flexible(
@@ -390,64 +391,101 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
-  Widget _buildBanner(String title, String content, String btnText,
-      GestureTapCallback onPressed, String? help, String? link,
+  Widget _buildBanner(
+      String title,
+      String content,
+      String btnText,
+      GestureTapCallback onPressed,
+      String? help,
+      String? link,
       VoidCallback? onClose) {
     final secondary = DesktopPanelStyle.secondaryTextColor(context);
     final isWarning = title == 'Warning' || title == 'Permissions';
+    final icon = Icon(
+        isWarning ? Icons.warning_amber_rounded : Icons.info_outline,
+        size: 20,
+        color: isWarning ? kColorWarn : MyTheme.accent);
+    final message = Text.rich(
+      TextSpan(children: [
+        if (title.isNotEmpty)
+          TextSpan(
+              text: '${translate(title)}  ',
+              style: const TextStyle(fontWeight: FontWeight.w600)),
+        if (content.isNotEmpty) TextSpan(text: translate(content)),
+      ]),
+      style: const TextStyle(fontSize: 13, height: 1.4),
+    );
+    final actions = <Widget>[
+      if (help != null && link != null)
+        TextButton(
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(0, 28),
+            textStyle: const TextStyle(fontSize: 13),
+          ),
+          onPressed: () async => await launchUrl(Uri.parse(link)),
+          child: Text(translate(help)),
+        ).marginOnly(left: 8),
+      if (btnText.isNotEmpty)
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            minimumSize: const Size(0, 28),
+            textStyle: const TextStyle(fontSize: 13),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          ),
+          onPressed: onPressed,
+          child: Text(translate(btnText)),
+        ).marginOnly(left: 8),
+    ];
+    final close = onClose == null
+        ? null
+        : IconButton(
+            tooltip: translate('Close'),
+            splashRadius: 16,
+            icon: Icon(Icons.close, size: 18, color: secondary),
+            onPressed: onClose,
+          ).marginOnly(left: 4);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: DesktopPanelStyle.panel(context),
-      child: Row(
-        children: [
-          Icon(isWarning ? Icons.warning_amber_rounded : Icons.info_outline,
-              size: 20, color: isWarning ? kColorWarn : MyTheme.accent),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text.rich(
-              TextSpan(children: [
-                if (title.isNotEmpty)
-                  TextSpan(
-                      text: '${translate(title)}  ',
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                if (content.isNotEmpty) TextSpan(text: translate(content)),
-              ]),
-              style: const TextStyle(fontSize: 13, height: 1.4),
-            ),
-          ),
-          if (help != null && link != null)
-            TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(0, 28),
-                textStyle: const TextStyle(fontSize: 13),
+      child: LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth < 520) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              icon,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    message,
+                    if (actions.isNotEmpty)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: actions,
+                      ).marginOnly(top: 8),
+                  ],
+                ),
               ),
-              onPressed: () async => await launchUrl(Uri.parse(link)),
-              child: Text(translate(help)),
-            ).marginOnly(left: 8),
-          if (btnText.isNotEmpty)
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                minimumSize: const Size(0, 28),
-                textStyle: const TextStyle(fontSize: 13),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6)),
-              ),
-              onPressed: onPressed,
-              child: Text(translate(btnText)),
-            ).marginOnly(left: 8),
-          if (onClose != null)
-            IconButton(
-              tooltip: translate('Close'),
-              splashRadius: 16,
-              icon: Icon(Icons.close, size: 18, color: secondary),
-              onPressed: onClose,
-            ).marginOnly(left: 4),
-        ],
-      ),
+              if (close != null) close,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            icon,
+            const SizedBox(width: 12),
+            Expanded(child: message),
+            ...actions,
+            if (close != null) close,
+          ],
+        );
+      }),
     );
   }
 

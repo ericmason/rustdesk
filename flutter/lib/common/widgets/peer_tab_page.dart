@@ -213,28 +213,30 @@ class _PeerTabPageState extends State<PeerTabPage>
               await bind.setLocalFlutterOption(
                   k: kOptionPeerTabIndex, v: t.toString());
             },
-      child: Obx(() => Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            margin: EdgeInsets.only(right: 4),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                    width: 2,
-                    color: selected ? MyTheme.accent : Colors.transparent),
-              ),
+      child: Obx(() {
+        final hovered = hover.value;
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          margin: EdgeInsets.only(right: 4),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                  width: 2,
+                  color: selected ? MyTheme.accent : Colors.transparent),
             ),
-            child: Text(
-              model.tabTooltip(t),
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                color: selected
-                    ? MyTheme.accent
-                    : (hover.value ? textColor : secondary),
-              ),
+          ),
+          child: Text(
+            model.tabTooltip(t),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              color:
+                  selected ? MyTheme.accent : (hovered ? textColor : secondary),
             ),
-          )),
+          ),
+        );
+      }),
     );
   }
 
