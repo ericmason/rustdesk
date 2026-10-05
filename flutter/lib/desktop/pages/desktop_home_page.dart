@@ -275,6 +275,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                       controller: model.serverId,
                       readOnly: true,
                       decoration: const InputDecoration(
+                        filled: false,
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.symmetric(vertical: 4),
@@ -340,6 +341,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                   controller: model.serverPasswd,
                   readOnly: true,
                   decoration: const InputDecoration(
+                    filled: false,
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(vertical: 4),
