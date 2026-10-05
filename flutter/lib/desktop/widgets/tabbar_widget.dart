@@ -666,7 +666,10 @@ class _DesktopTabState extends State<DesktopTab>
                                 });
                               }
                             },
-                            child: _ListView(
+                            child: tabType == DesktopTabType.main &&
+                                    !bind.isIncomingOnly()
+                                ? _MainWindowBackButton(controller: controller)
+                                : _ListView(
                               controller: controller,
                               invisibleTabKeys: invisibleTabKeys,
                               tabBuilder: tabBuilder,
@@ -1537,5 +1540,39 @@ class TabbarTheme extends ThemeExtension<TabbarTheme> {
 
   static color(BuildContext context) {
     return Theme.of(context).extension<ColorThemeExtension>()!;
+  }
+}
+
+// The main window only ever holds Home plus Settings, so it shows a Back
+// button while Settings is open instead of a tab strip.
+class _MainWindowBackButton extends StatelessWidget {
+  final DesktopTabController controller;
+
+  const _MainWindowBackButton({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final state = controller.state.value;
+      if (state.tabs.isEmpty ||
+          state.selected >= state.tabs.length ||
+          state.selectedTabInfo.key == kTabLabelHomePage) {
+        return const SizedBox.shrink();
+      }
+      final color = Theme.of(context).textTheme.titleLarge?.color;
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          style: TextButton.styleFrom(
+            foregroundColor: color,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(0, 28),
+          ),
+          icon: const Icon(Icons.chevron_left, size: 18),
+          label: Text(translate('Back'), style: const TextStyle(fontSize: 13)),
+          onPressed: () => controller.closeBy(state.selectedTabInfo.key),
+        ),
+      );
+    });
   }
 }

@@ -351,6 +351,17 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               ),
             ),
             if (showOneTime)
+              IconButton(
+                tooltip: translate('Copy to clipboard'),
+                splashRadius: 18,
+                icon: Icon(Icons.copy_rounded, size: 20, color: secondary),
+                onPressed: () {
+                  Clipboard.setData(
+                      ClipboardData(text: model.serverPasswd.text));
+                  showToast(translate("Copied"));
+                },
+              ).marginOnly(left: 4),
+            if (showOneTime)
               AnimatedRotationWidget(
                 onPressed: () => bind.mainUpdateTemporaryPassword(),
                 child: Tooltip(
@@ -407,6 +418,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           ),
           if (help != null && link != null)
             TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(0, 28),
+                textStyle: const TextStyle(fontSize: 13),
+              ),
               onPressed: () async => await launchUrl(Uri.parse(link)),
               child: Text(translate(help)),
             ).marginOnly(left: 8),
@@ -414,8 +430,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                minimumSize: const Size(0, 28),
+                textStyle: const TextStyle(fontSize: 13),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(6)),
               ),
               onPressed: onPressed,
               child: Text(translate(btnText)),
