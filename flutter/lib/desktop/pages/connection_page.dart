@@ -226,6 +226,11 @@ class _ConnectionPageState extends State<ConnectionPage>
   void initState() {
     super.initState();
     _allPeersLoader.init(setState);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_allPeersLoader.needLoad) {
+        _allPeersLoader.getAllPeers();
+      }
+    });
     _idFocusNode.addListener(onFocusChanged);
     if (_idController.text.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -387,6 +392,36 @@ class _ConnectionPageState extends State<ConnectionPage>
 
   /// UI for the remote ID TextField.
   /// Search for a peer.
+  // Always takes one line, so the panel keeps its height while typing.
+  Widget _buildRecognizedPeerName(BuildContext context) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _idController,
+      builder: (context, value, child) {
+        final id = _idController.id;
+        var name = '';
+        for (final peer in _allPeersLoader.peers) {
+          if (peer.id == id) {
+            name = peer.alias.isNotEmpty
+                ? peer.alias
+                : (peer.hostname.isNotEmpty ? peer.hostname : peer.username);
+            break;
+          }
+        }
+        return SizedBox(
+          height: 18,
+          child: Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontSize: 12,
+                color: DesktopPanelStyle.secondaryTextColor(context)),
+          ),
+        ).marginOnly(top: 6, left: 2);
+      },
+    );
+  }
+
   Widget _buildRemoteIDTextField(BuildContext context) {
     final secondary = DesktopPanelStyle.secondaryTextColor(context);
     final borderColor = DesktopPanelStyle.borderColor(context);
@@ -598,6 +633,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                 )),
               ],
             ),
+            _buildRecognizedPeerName(context),
             Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: Row(children: [
