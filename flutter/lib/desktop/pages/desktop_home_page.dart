@@ -257,8 +257,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 child: Icon(Icons.help_outline_outlined,
                     size: DesktopPanelStyle.iconInline, color: secondary),
               ).marginOnly(left: 8),
-              const Spacer(),
-              buildPopupMenu(context),
             ],
           ),
           const SizedBox(height: 8),
