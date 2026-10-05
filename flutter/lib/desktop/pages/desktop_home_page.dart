@@ -219,7 +219,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       tooltip: translate('Settings'),
       splashRadius: 16,
       icon: Icon(Icons.settings_outlined,
-          size: 18, color: DesktopPanelStyle.secondaryTextColor(context)),
+          size: DesktopPanelStyle.iconButton,
+          color: DesktopPanelStyle.secondaryTextColor(context)),
       onPressed: () {
         if (DesktopSettingPage.tabKeys.isNotEmpty) {
           DesktopSettingPage.switch2page(DesktopSettingPage.tabKeys[0]);
@@ -232,7 +233,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final model = gFFI.serverModel;
     final secondary = DesktopPanelStyle.secondaryTextColor(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(16),
       decoration: DesktopPanelStyle.panel(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,22 +246,25 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w600, height: 1.2),
+                      fontSize: DesktopPanelStyle.fontTitle,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2),
                 ),
               ),
               Tooltip(
                 waitDuration: const Duration(milliseconds: 300),
                 message: translate('desk_tip'),
                 child: Icon(Icons.help_outline_outlined,
-                    size: 16, color: secondary),
-              ).marginOnly(left: 6),
+                    size: DesktopPanelStyle.iconInline, color: secondary),
+              ).marginOnly(left: 8),
               const Spacer(),
               buildPopupMenu(context),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(translate('ID'),
-              style: TextStyle(fontSize: 13, color: secondary)),
+              style: TextStyle(
+                  fontSize: DesktopPanelStyle.fontSmall, color: secondary)),
           Row(
             children: [
               Flexible(
@@ -281,7 +285,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         contentPadding: EdgeInsets.symmetric(vertical: 4),
                       ),
                       style: const TextStyle(
-                        fontSize: 24,
+                        fontSize: DesktopPanelStyle.fontDisplay,
                         fontWeight: FontWeight.w500,
                         fontFeatures: [FontFeature.tabularFigures()],
                       ),
@@ -292,7 +296,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               IconButton(
                 tooltip: translate('Copy to clipboard'),
                 splashRadius: 18,
-                icon: Icon(Icons.copy_rounded, size: 20, color: secondary),
+                icon: Icon(Icons.copy_rounded,
+                    size: DesktopPanelStyle.iconButton, color: secondary),
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: model.serverId.text));
                   showToast(translate("Copied"));
@@ -325,7 +330,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         Text(translate("One-time Password"),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 13, color: secondary)),
+            style: TextStyle(
+                fontSize: DesktopPanelStyle.fontSmall, color: secondary)),
         Row(
           children: [
             Expanded(
@@ -347,7 +353,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                     contentPadding: EdgeInsets.symmetric(vertical: 4),
                   ),
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: DesktopPanelStyle.fontTitle,
+                    fontWeight: FontWeight.w500,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
                 ).workaroundFreezeLinuxMint(),
@@ -357,7 +364,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               IconButton(
                 tooltip: translate('Copy to clipboard'),
                 splashRadius: 18,
-                icon: Icon(Icons.copy_rounded, size: 20, color: secondary),
+                icon: Icon(Icons.copy_rounded,
+                    size: DesktopPanelStyle.iconButton, color: secondary),
                 onPressed: () {
                   Clipboard.setData(
                       ClipboardData(text: model.serverPasswd.text));
@@ -374,7 +382,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                       child: Icon(
                         Icons.refresh,
                         color: refreshHover.value ? textColor : secondary,
-                        size: 22,
+                        size: DesktopPanelStyle.iconButton,
                       ))),
                 ),
                 onHover: (value) => refreshHover.value = value,
@@ -383,7 +391,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               IconButton(
                 tooltip: translate('Change Password'),
                 splashRadius: 18,
-                icon: Icon(Icons.edit_outlined, size: 20, color: secondary),
+                icon: Icon(Icons.edit_outlined,
+                    size: DesktopPanelStyle.iconButton, color: secondary),
                 onPressed: () =>
                     DesktopSettingPage.switch2page(SettingsTabKey.safety),
               ).marginOnly(left: 4),
@@ -405,7 +414,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isWarning = title == 'Warning' || title == 'Permissions';
     final icon = Icon(
         isWarning ? Icons.warning_amber_rounded : Icons.info_outline,
-        size: 20,
+        size: DesktopPanelStyle.iconInline,
         color: isWarning ? kColorWarn : MyTheme.accent);
     final message = Text.rich(
       TextSpan(children: [
@@ -415,7 +424,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               style: const TextStyle(fontWeight: FontWeight.w600)),
         if (content.isNotEmpty) TextSpan(text: translate(content)),
       ]),
-      style: const TextStyle(fontSize: 13, height: 1.4),
+      style: const TextStyle(fontSize: DesktopPanelStyle.fontSmall, height: 1.4),
     );
     final actions = <Widget>[
       if (help != null && link != null)
@@ -423,7 +432,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             minimumSize: const Size(0, 28),
-            textStyle: const TextStyle(fontSize: 13),
+            textStyle: const TextStyle(
+                fontSize: DesktopPanelStyle.fontSmall,
+                fontWeight: FontWeight.w500),
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(DesktopPanelStyle.controlRadius)),
           ),
           onPressed: () async => await launchUrl(Uri.parse(link)),
           child: Text(translate(help)),
@@ -434,9 +448,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             minimumSize: const Size(0, 28),
-            textStyle: const TextStyle(fontSize: 13),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            textStyle: const TextStyle(
+                fontSize: DesktopPanelStyle.fontSmall,
+                fontWeight: FontWeight.w500),
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(DesktopPanelStyle.controlRadius)),
           ),
           onPressed: onPressed,
           child: Text(translate(btnText)),
@@ -447,12 +464,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         : IconButton(
             tooltip: translate('Close'),
             splashRadius: 16,
-            icon: Icon(Icons.close, size: 18, color: secondary),
+            icon: Icon(Icons.close,
+                size: DesktopPanelStyle.iconButton, color: secondary),
             onPressed: onClose,
           ).marginOnly(left: 4);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: DesktopPanelStyle.panel(context),
       child: LayoutBuilder(builder: (context, constraints) {
         if (constraints.maxWidth < 520) {

@@ -331,7 +331,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       widget.incomingPanel!,
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       _buildRemoteIDTextField(context),
                     ],
                   );
@@ -367,7 +367,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                 if (widget.footerLeading != null)
                   widget.footerLeading!.marginOnly(left: 12),
                 if (!isOutgoingOnly)
-                  Expanded(child: OnlineStatusWidget().marginOnly(left: 10)),
+                  Expanded(child: OnlineStatusWidget().marginOnly(left: 12)),
               ],
             ),
           ),
@@ -414,10 +414,10 @@ class _ConnectionPageState extends State<ConnectionPage>
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-                fontSize: 12,
+                fontSize: DesktopPanelStyle.fontSmall,
                 color: DesktopPanelStyle.secondaryTextColor(context)),
           ),
-        ).marginOnly(top: 6, left: 2);
+        ).marginOnly(top: 4, left: 4);
       },
     );
   }
@@ -425,10 +425,10 @@ class _ConnectionPageState extends State<ConnectionPage>
   Widget _buildRemoteIDTextField(BuildContext context) {
     final secondary = DesktopPanelStyle.secondaryTextColor(context);
     final borderColor = DesktopPanelStyle.borderColor(context);
-    final buttonShape =
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(8));
+    final buttonShape = RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(DesktopPanelStyle.controlRadius));
     var w = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(16),
       decoration: DesktopPanelStyle.panel(context),
       child: Ink(
         child: Column(
@@ -442,22 +442,25 @@ class _ConnectionPageState extends State<ConnectionPage>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600, height: 1.2),
+                        fontSize: DesktopPanelStyle.fontTitle,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2),
                   ),
                 ),
                 Tooltip(
                   waitDuration: const Duration(milliseconds: 300),
                   message: translate("id_input_tip"),
                   child: Icon(Icons.help_outline_outlined,
-                      size: 16, color: secondary),
-                ).marginOnly(left: 6),
+                      size: DesktopPanelStyle.iconInline, color: secondary),
+                ).marginOnly(left: 8),
               ],
             ),
             if (bind.isOutgoingOnly())
               Text(
                 translate("outgoing_only_desk_tip"),
-                style: TextStyle(fontSize: 13, color: secondary),
-              ).marginOnly(top: 6),
+                style: TextStyle(
+                    fontSize: DesktopPanelStyle.fontSmall, color: secondary),
+              ).marginOnly(top: 4),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -526,7 +529,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                           keyboardType: TextInputType.visiblePassword,
                           focusNode: fieldFocusNode,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: DesktopPanelStyle.fontTitle,
                             height: 1.4,
                             fontFeatures: [FontFeature.tabularFigures()],
                           ),
@@ -540,19 +543,24 @@ class _ConnectionPageState extends State<ConnectionPage>
                                   ? null
                                   : translate('Enter Remote ID'),
                               hintStyle:
-                                  TextStyle(fontSize: 15, color: secondary),
+                                  TextStyle(
+                                      fontSize: DesktopPanelStyle.fontTitle,
+                                      color: secondary),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(
+                                      DesktopPanelStyle.controlRadius),
                                   borderSide: BorderSide(color: borderColor)),
                               enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(
+                                      DesktopPanelStyle.controlRadius),
                                   borderSide: BorderSide(color: borderColor)),
                               focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(
+                                      DesktopPanelStyle.controlRadius),
                                   borderSide: const BorderSide(
                                       color: MyTheme.accent, width: 1.5)),
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 12)),
+                                  horizontal: 12, vertical: 12)),
                           controller: fieldTextEditingController,
                           inputFormatters: [IDTextInputFormatter()],
                           onChanged: (v) {
@@ -596,7 +604,8 @@ class _ConnectionPageState extends State<ConnectionPage>
                             ],
                           ),
                           child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
+                              borderRadius: BorderRadius.circular(
+                                  DesktopPanelStyle.controlRadius),
                               child: Material(
                                 elevation: 4,
                                 child: ConstrainedBox(
@@ -635,7 +644,7 @@ class _ConnectionPageState extends State<ConnectionPage>
             ),
             _buildRecognizedPeerName(context),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: const EdgeInsets.only(top: 12.0),
               child: Row(children: [
                 Expanded(
                   child: SizedBox(
@@ -646,9 +655,10 @@ class _ConnectionPageState extends State<ConnectionPage>
                         backgroundColor: MyTheme.accent,
                         foregroundColor: Colors.white,
                         shape: buttonShape,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         textStyle: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500),
+                            fontSize: DesktopPanelStyle.fontBody,
+                            fontWeight: FontWeight.w500),
                       ),
                       onPressed: () {
                         onConnect();
@@ -668,9 +678,10 @@ class _ConnectionPageState extends State<ConnectionPage>
                             Theme.of(context).textTheme.titleLarge?.color,
                         side: BorderSide(color: borderColor),
                         shape: buttonShape,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         textStyle: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500),
+                            fontSize: DesktopPanelStyle.fontBody,
+                            fontWeight: FontWeight.w500),
                       ),
                       onPressed: () => onConnect(isFileTransfer: true),
                       child: Text(translate("Transfer file")),
@@ -684,7 +695,8 @@ class _ConnectionPageState extends State<ConnectionPage>
                   decoration: BoxDecoration(
                     color: DesktopPanelStyle.windowColor(context),
                     border: Border.all(color: borderColor),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius:
+                        BorderRadius.circular(DesktopPanelStyle.controlRadius),
                   ),
                   child: SizedBox.expand(
                     child: StatefulBuilder(
@@ -694,9 +706,11 @@ class _ConnectionPageState extends State<ConnectionPage>
                               child: _menuOpen.value
                                   ? Transform.rotate(
                                       angle: pi,
-                                      child: Icon(IconFont.more, size: 16),
+                                      child: Icon(IconFont.more,
+                                          size: DesktopPanelStyle.iconChevron),
                                     )
-                                  : Icon(IconFont.more, size: 16),
+                                  : Icon(IconFont.more,
+                                      size: DesktopPanelStyle.iconChevron),
                               onTapDown: (e) {
                                 offset = e.globalPosition;
                               },

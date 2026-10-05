@@ -229,8 +229,8 @@ class _PeerTabPageState extends State<PeerTabPage>
           child: Text(
             model.tabTooltip(t),
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              fontSize: DesktopPanelStyle.fontBody,
+              fontWeight: selected ? FontWeight.w500 : FontWeight.normal,
               color:
                   selected ? MyTheme.accent : (hovered ? textColor : secondary),
             ),
@@ -282,7 +282,7 @@ class _PeerTabPageState extends State<PeerTabPage>
                 quarterTurns: 2,
                 child: Icon(
                   Icons.refresh,
-                  size: 18,
+                  size: isDesktop ? DesktopPanelStyle.iconButton : 18,
                   color: textColor,
                 ))),
       ),
@@ -594,7 +594,7 @@ class _PeerTabPageState extends State<PeerTabPage>
         hoverableWhenfalse: hideAbTagsPanel,
         child: Icon(
           Icons.tag_rounded,
-          size: 18,
+          size: isDesktop ? DesktopPanelStyle.iconButton : 18,
         ),
         onTap: () async {
           await bind.mainSetLocalOption(
@@ -736,6 +736,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
             },
             child: Icon(
               Icons.search_rounded,
+              size: isDesktop ? DesktopPanelStyle.iconButton : null,
               color: Theme.of(context).hintColor,
             ));
   }
@@ -753,7 +754,8 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
           width: stateGlobal.isPortrait.isTrue ? 120 : 140,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.background,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(
+                isDesktop ? DesktopPanelStyle.controlRadius : 6),
           ),
           child: Row(
             children: [
@@ -762,6 +764,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
                   children: [
                     Icon(
                       Icons.search_rounded,
+                      size: isDesktop ? DesktopPanelStyle.iconInline : null,
                       color: Theme.of(context).hintColor,
                     ).marginSymmetric(horizontal: 4),
                     Expanded(
@@ -809,6 +812,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
                           message: translate('Close'),
                           child: Icon(
                             Icons.close,
+                            size: isDesktop ? DesktopPanelStyle.iconButton : null,
                             color: Theme.of(context).hintColor,
                           )),
                     ),
@@ -898,7 +902,7 @@ class _PeerViewDropdownState extends State<PeerViewDropdown> {
               : peerCardUiType.value == PeerUiType.list
                   ? Icons.view_list_rounded
                   : Icons.view_agenda_rounded,
-          size: 18,
+          size: isDesktop ? DesktopPanelStyle.iconButton : 18,
         ),
         onTapDown: (details) {
           final x = details.globalPosition.dx;
@@ -974,7 +978,7 @@ class _PeerSortDropdownState extends State<PeerSortDropdown> {
       toolTip: translate('Sort by'),
       child: Icon(
         Icons.sort_rounded,
-        size: 18,
+        size: isDesktop ? DesktopPanelStyle.iconButton : 18,
       ),
       onTapDown: (details) {
         final x = details.globalPosition.dx;
@@ -1022,7 +1026,8 @@ class RefreshWidgetState extends State<RefreshWidget> {
   Widget build(BuildContext context) {
     final deco = BoxDecoration(
       color: Theme.of(context).colorScheme.background,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius:
+          BorderRadius.circular(isDesktop ? DesktopPanelStyle.controlRadius : 6),
     );
     return AnimatedRotation(
         turns: turns,
@@ -1064,7 +1069,8 @@ Widget _hoverAction(
   final hover = false.obs;
   final deco = BoxDecoration(
     color: Theme.of(context).colorScheme.background,
-    borderRadius: BorderRadius.circular(6),
+    borderRadius:
+        BorderRadius.circular(isDesktop ? DesktopPanelStyle.controlRadius : 6),
   );
   return Tooltip(
     message: toolTip,

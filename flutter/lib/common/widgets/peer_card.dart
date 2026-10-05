@@ -149,7 +149,7 @@ class _PeerCardState extends State<_PeerCard>
                       ? MyTheme.accent.withOpacity(0.06)
                       : DesktopPanelStyle.panelColor(context))
               : DesktopPanelStyle.panel(context,
-                  radius: DesktopPanelStyle.tileRadius,
+                  radius: DesktopPanelStyle.controlRadius,
                   borderColor: borderColor);
           return Tooltip(
             message: peer.tags.isNotEmpty
@@ -248,11 +248,11 @@ class _PeerCardState extends State<_PeerCard>
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 6, 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
           child: Row(
             children: [
               _desktopPlatformGlyph(peer, 40),
-              const SizedBox(width: 14),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -263,7 +263,8 @@ class _PeerCardState extends State<_PeerCard>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600),
+                          fontSize: DesktopPanelStyle.fontTitle,
+                          fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -271,7 +272,7 @@ class _PeerCardState extends State<_PeerCard>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: DesktopPanelStyle.fontSmall,
                         color: secondary,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
@@ -286,8 +287,8 @@ class _PeerCardState extends State<_PeerCard>
             ],
           ),
         ),
-        Positioned(top: 12, right: 14, child: _desktopOnlineDot(peer)),
-        Positioned(top: 12, right: 30, child: _desktopTagDots(peer)),
+        Positioned(top: 12, right: 16, child: _desktopOnlineDot(peer)),
+        Positioned(top: 12, right: 32, child: _desktopTagDots(peer)),
       ],
     );
   }
@@ -295,7 +296,7 @@ class _PeerCardState extends State<_PeerCard>
   Widget _buildDesktopRow(Peer peer, {required bool isList}) {
     final secondary = DesktopPanelStyle.secondaryTextColor(context);
     final idStyle = TextStyle(
-      fontSize: 12,
+      fontSize: DesktopPanelStyle.fontSmall,
       color: secondary,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
@@ -303,16 +304,17 @@ class _PeerCardState extends State<_PeerCard>
       _desktopPeerTitle(peer),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: isList ? 14 : 13, fontWeight: FontWeight.w600),
+      style: const TextStyle(
+          fontSize: DesktopPanelStyle.fontTitle, fontWeight: FontWeight.w600),
     );
     final subtitle = Text(_desktopPeerSubtitle(peer),
         maxLines: 1, overflow: TextOverflow.ellipsis, style: idStyle);
     return Padding(
-      padding: EdgeInsets.only(left: isList ? 16 : 10, right: 4),
+      padding: EdgeInsets.only(left: isList ? 16 : 12, right: 4),
       child: Row(
         children: [
-          _desktopPlatformGlyph(peer, isList ? 22 : 20),
-          SizedBox(width: isList ? 14 : 10),
+          _desktopPlatformGlyph(peer, DesktopPanelStyle.iconButton),
+          SizedBox(width: isList ? 16 : 12),
           if (isList) ...[
             Expanded(flex: 3, child: title),
             const SizedBox(width: 12),
@@ -326,7 +328,7 @@ class _PeerCardState extends State<_PeerCard>
               ),
             ),
           _desktopTagDots(peer).marginOnly(right: 4),
-          _desktopOnlineDot(peer).marginSymmetric(horizontal: 6),
+          _desktopOnlineDot(peer).marginSymmetric(horizontal: 8),
           checkBoxOrActionMoreLandscape(peer, isTile: true),
         ],
       ),

@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 
-/// Colors and shapes shared by the desktop home window and Settings pages.
+/// Colors, type sizes, shapes, and icon sizes shared by the desktop home
+/// window and Settings pages.
 class DesktopPanelStyle {
   DesktopPanelStyle._();
 
+  static const double fontDisplay = 24;
+  static const double fontHeading = 22;
+  static const double fontTitle = 15;
+  static const double fontBody = 14;
+  static const double fontSmall = 13;
+
   static const double panelRadius = 12;
-  static const double tileRadius = 10;
+  static const double controlRadius = 8;
+
+  static const double iconInline = 16;
+  static const double iconButton = 20;
+  static const double iconChevron = 18;
 
   static bool _isDark(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark;

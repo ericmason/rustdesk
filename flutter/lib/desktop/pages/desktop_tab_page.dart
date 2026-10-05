@@ -3,6 +3,7 @@ import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_home_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
+import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -128,16 +129,20 @@ class _SettingsButton extends StatelessWidget {
         return const SizedBox.shrink();
       }
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: TextButton.icon(
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             minimumSize: const Size(0, 28),
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(DesktopPanelStyle.controlRadius)),
           ),
-          icon: const Icon(Icons.settings_outlined, size: 16),
-          label:
-              Text(translate('Settings'), style: const TextStyle(fontSize: 13)),
+          icon: const Icon(Icons.settings_outlined,
+              size: DesktopPanelStyle.iconInline),
+          label: Text(translate('Settings'),
+              style: const TextStyle(fontSize: DesktopPanelStyle.fontSmall)),
           onPressed: () => DesktopTabPage.onAddSetting(),
         ),
       );

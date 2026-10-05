@@ -10,6 +10,7 @@ import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/remote_page.dart';
 import 'package:flutter_hbb/desktop/pages/view_camera_page.dart';
+import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/main.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -1575,9 +1576,14 @@ class _MainWindowBackButton extends StatelessWidget {
             foregroundColor: color,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             minimumSize: const Size(0, 28),
+            shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(DesktopPanelStyle.controlRadius)),
           ),
-          icon: const Icon(Icons.chevron_left, size: 18),
-          label: Text(translate('Back'), style: const TextStyle(fontSize: 13)),
+          icon: const Icon(Icons.chevron_left,
+              size: DesktopPanelStyle.iconChevron),
+          label: Text(translate('Back'),
+              style: const TextStyle(fontSize: DesktopPanelStyle.fontSmall)),
           onPressed: () => controller.closeBy(state.selectedTabInfo.key),
         ),
       );

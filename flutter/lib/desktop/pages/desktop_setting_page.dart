@@ -30,7 +30,7 @@ import '../../common/widgets/login.dart';
 const double _kTabWidth = 220;
 const double _kTabHeight = 36;
 const double _kContentMaxWidth = 640;
-const double _kContentPadding = 32;
+const double _kContentPadding = 24;
 const double _kCardLeftMargin = 15;
 const double _kContentHMargin = 15;
 const double _kContentHSubMargin = _kContentHMargin + 33;
@@ -38,7 +38,7 @@ const double _kCheckBoxLeftMargin = 10;
 const double _kRadioLeftMargin = 10;
 const double _kListViewBottomMargin = 15;
 const double _kTitleFontSize = 20;
-const double _kContentFontSize = 15;
+const double _kContentFontSize = DesktopPanelStyle.fontBody;
 const Color _accentColor = MyTheme.accent;
 const String _kSettingPageControllerTag = 'settingPageController';
 const String _kSettingPageTabKeyTag = 'settingPageTabKey';
@@ -309,6 +309,8 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
   }
 
   Widget _pageWithTitle(String label, Widget page) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     return Align(
       alignment: Alignment.topLeft,
       child: ConstrainedBox(
@@ -319,11 +321,26 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
           children: [
             Text(
               translate(label),
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                  fontSize: DesktopPanelStyle.fontHeading,
+                  fontWeight: FontWeight.w600),
             ).marginOnly(
                 left: _kContentPadding, top: 24, right: _kContentPadding),
             Expanded(
-              child: page.marginSymmetric(horizontal: _kContentPadding),
+              // The app theme sizes button labels, text fields, and list
+              // tiles at 16; Settings uses the 14 body size for all of them.
+              child: Theme(
+                data: theme.copyWith(
+                  textTheme: textTheme.copyWith(
+                    titleMedium: textTheme.titleMedium
+                        ?.copyWith(fontSize: DesktopPanelStyle.fontBody),
+                    labelLarge: textTheme.labelLarge?.copyWith(
+                        fontSize: DesktopPanelStyle.fontBody,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+                child: page.marginSymmetric(horizontal: _kContentPadding),
+              ),
             ),
           ],
         ),
@@ -386,13 +403,13 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
           : Theme.of(context).textTheme.titleLarge?.color;
       return Container(
         height: _kTabHeight,
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+        margin: const EdgeInsets.only(left: 12, right: 12, bottom: 4),
         decoration: BoxDecoration(
           color: selected ? _accentColor.withOpacity(0.12) : null,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesktopPanelStyle.controlRadius),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(DesktopPanelStyle.controlRadius),
           onTap: () {
             if (selectedTab.value != tab.key) {
               int index = DesktopSettingPage.tabKeys.indexOf(tab.key);
@@ -407,8 +424,8 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
             Icon(
               tab.unselected,
               color: color,
-              size: 18,
-            ).marginOnly(left: 10, right: 10),
+              size: DesktopPanelStyle.iconInline,
+            ).marginOnly(left: 12, right: 8),
             Expanded(
               child: Text(
                 translate(tab.label),
@@ -416,8 +433,8 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: color,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    fontSize: 14),
+                    fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+                    fontSize: DesktopPanelStyle.fontBody),
               ),
             ),
           ]),
@@ -1555,6 +1572,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                     offstage: !hasWhitelist.value,
                     child: MouseRegion(
                       child: const Icon(Icons.warning_amber_rounded,
+                              size: DesktopPanelStyle.iconInline,
                               color: Color.fromARGB(255, 255, 204, 0))
                           .marginOnly(right: 5),
                       cursor: SystemMouseCursors.click,
@@ -1604,6 +1622,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   offstage: !hasIdWhitelist.value,
                   child: MouseRegion(
                     child: const Icon(Icons.warning_amber_rounded,
+                            size: DesktopPanelStyle.iconInline,
                             color: Color.fromARGB(255, 255, 204, 0))
                         .marginOnly(right: 5),
                     cursor: SystemMouseCursors.click,
@@ -1829,7 +1848,7 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
                       SizedBox(width: 5),
                       Icon(
                         Icons.help_outline,
-                        size: 14,
+                        size: DesktopPanelStyle.iconInline,
                         color: Theme.of(context)
                             .textTheme
                             .titleLarge
@@ -1847,13 +1866,14 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
             );
 
       return ListTile(
-        leading: Icon(icon, color: _accentColor),
+        leading: Icon(icon,
+            size: DesktopPanelStyle.iconInline, color: _accentColor),
         title: titleWidget,
         enabled: !locked,
         onTap: onTap,
         trailing: trailing,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(DesktopPanelStyle.controlRadius),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
         minLeadingWidth: 0,
@@ -2272,7 +2292,8 @@ class _AccountState extends State<_Account> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius:
+                  BorderRadius.circular(DesktopPanelStyle.controlRadius),
             ),
             child: Builder(builder: (context) {
               final avatarWidget = _buildUserAvatar();
@@ -2289,7 +2310,7 @@ class _AccountState extends State<_Account> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: DesktopPanelStyle.fontTitle,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -2300,7 +2321,7 @@ class _AccountState extends State<_Account> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: DesktopPanelStyle.fontSmall,
                               color:
                                   Theme.of(context).textTheme.bodySmall?.color,
                             ),
@@ -2646,10 +2667,10 @@ Widget _Card(
                 child: Text(
               translate(title),
               textAlign: TextAlign.start,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: DesktopPanelStyle.secondaryTextColor(context),
+              style: const TextStyle(
+                fontSize: DesktopPanelStyle.fontTitle,
+                fontWeight: FontWeight.w600,
+                height: 1.2,
               ),
             )),
             ...?title_suffix
@@ -3121,7 +3142,8 @@ Widget _lock(
                     elevation: 0,
                     minimumSize: const Size.fromHeight(44),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(
+                            DesktopPanelStyle.controlRadius)),
                   ),
                   child: SizedBox(
                       height: 25,
@@ -3130,7 +3152,7 @@ Widget _lock(
                           children: [
                             const Icon(
                               Icons.security_sharp,
-                              size: 20,
+                              size: DesktopPanelStyle.iconInline,
                             ),
                             Text(translate(label)).marginOnly(left: 5),
                           ]).marginSymmetric(vertical: 2)),
