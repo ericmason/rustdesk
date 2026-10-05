@@ -197,7 +197,32 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         banner: _buildBannerArea(context),
         incomingPanel: isOutgoingOnly ? null : _buildIncomingPanel(context),
         footerLeading: isOutgoingOnly ? _buildSettingsButton(context) : null,
+        footerTrailing: isOutgoingOnly || bind.isDisableSettings()
+            ? null
+            : _buildFooterSettingsButton(context),
       ),
+    );
+  }
+
+  Widget _buildFooterSettingsButton(BuildContext context) {
+    return TextButton.icon(
+      style: TextButton.styleFrom(
+        foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        minimumSize: const Size(0, 28),
+        shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(DesktopPanelStyle.controlRadius)),
+      ),
+      icon: const Icon(Icons.settings_outlined,
+          size: DesktopPanelStyle.iconInline),
+      label: Text(translate('Settings'),
+          style: const TextStyle(fontSize: DesktopPanelStyle.fontSmall)),
+      onPressed: () {
+        if (DesktopSettingPage.tabKeys.isNotEmpty) {
+          DesktopSettingPage.switch2page(DesktopSettingPage.tabKeys[0]);
+        }
+      },
     );
   }
 

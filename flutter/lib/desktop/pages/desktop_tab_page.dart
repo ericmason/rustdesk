@@ -3,7 +3,6 @@ import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_home_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
-import 'package:flutter_hbb/desktop/widgets/panel_style.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -97,10 +96,6 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
             backgroundColor: Theme.of(context).colorScheme.background,
             body: DesktopTab(
               controller: tabController,
-              tail: Offstage(
-                offstage: bind.isIncomingOnly() || bind.isDisableSettings(),
-                child: _SettingsButton(controller: tabController),
-              ),
             )));
     return isMacOS || kUseCompatibleUiMode
         ? tabWidget
@@ -111,41 +106,5 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
               child: tabWidget,
             ),
           );
-  }
-}
-
-class _SettingsButton extends StatelessWidget {
-  final DesktopTabController controller;
-
-  const _SettingsButton({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final state = controller.state.value;
-      if (state.tabs.isNotEmpty &&
-          state.selected < state.tabs.length &&
-          state.selectedTabInfo.key != kTabLabelHomePage) {
-        return const SizedBox.shrink();
-      }
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: TextButton.icon(
-          style: TextButton.styleFrom(
-            foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            minimumSize: const Size(0, 28),
-            shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(DesktopPanelStyle.controlRadius)),
-          ),
-          icon: const Icon(Icons.settings_outlined,
-              size: DesktopPanelStyle.iconInline),
-          label: Text(translate('Settings'),
-              style: const TextStyle(fontSize: DesktopPanelStyle.fontSmall)),
-          onPressed: () => DesktopTabPage.onAddSetting(),
-        ),
-      );
-    });
   }
 }

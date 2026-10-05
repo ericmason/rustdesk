@@ -190,12 +190,17 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
 /// Connection page for connecting to a remote peer.
 class ConnectionPage extends StatefulWidget {
   const ConnectionPage(
-      {Key? key, this.banner, this.incomingPanel, this.footerLeading})
+      {Key? key,
+      this.banner,
+      this.incomingPanel,
+      this.footerLeading,
+      this.footerTrailing})
       : super(key: key);
 
   final Widget? banner;
   final Widget? incomingPanel;
   final Widget? footerLeading;
+  final Widget? footerTrailing;
 
   @override
   State<ConnectionPage> createState() => _ConnectionPageState();
@@ -368,6 +373,8 @@ class _ConnectionPageState extends State<ConnectionPage>
                   widget.footerLeading!.marginOnly(left: 12),
                 if (!isOutgoingOnly)
                   Expanded(child: OnlineStatusWidget().marginOnly(left: 12)),
+                if (widget.footerTrailing != null)
+                  widget.footerTrailing!.marginOnly(right: 8),
               ],
             ),
           ),
